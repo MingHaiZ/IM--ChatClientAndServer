@@ -1,0 +1,15 @@
+server:
+  port: 8710
+  servlet:
+    context-path: /api
+project:
+  folder: D:\Intellj_IDEA_project\Easychat\logPath
+
+log:
+  root:
+    level: debug
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306
+    password: Yy002916
+    username: root
