@@ -12,7 +12,7 @@ public class AppConfig {
     @Value("${project.folder}")
     private String projectFolder;
 
-    @Value("${spring.redis.admin.emails}")
+    @Value("${admin.emails}")
     private String adminEmails;
 
     public Integer getWsPort() {

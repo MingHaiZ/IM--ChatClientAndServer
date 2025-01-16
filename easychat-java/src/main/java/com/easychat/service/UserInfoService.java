@@ -2,10 +2,10 @@ package com.easychat.service;
 
 import java.util.List;
 
-import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.entity.po.UserInfo;
 import com.easychat.entity.vo.PaginationResultVO;
+import com.easychat.entity.vo.UserInfoVo;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -93,5 +93,5 @@ public interface UserInfoService {
 
     void register(@NotEmpty @Email String email, @NotEmpty String password, @NotEmpty String nickName);
 
-	TokenUserInfoDto login(@NotEmpty @Email String email, @NotEmpty String password);
+	UserInfoVo login(@NotEmpty @Email String email, @NotEmpty String password);
 }

@@ -49,5 +49,6 @@ spring:
         min-idle: 0
     timeout: 2000
 
-    admin.emails: coder_minghai@qq.com
-    dev: false
+admin:
+  emails: test@qq.com
+dev: false

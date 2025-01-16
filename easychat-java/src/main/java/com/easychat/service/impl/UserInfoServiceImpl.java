@@ -7,11 +7,15 @@ import java.util.Objects;
 import javax.annotation.Resource;
 
 import com.easychat.config.AppConfig;
+import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
 import com.easychat.entity.query.UserInfoBeauty;
+import com.easychat.entity.vo.UserInfoVo;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.UserInfoBeautyMapper;
+import com.easychat.redis.RedisComponent;
+import com.easychat.utils.CopyTools;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,7 @@ import com.easychat.entity.query.SimplePage;
 import com.easychat.mappers.UserInfoMapper;
 import com.easychat.service.UserInfoService;
 import com.easychat.utils.StringTools;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -37,6 +42,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserInfoBeautyMapper<UserInfoBeauty, UserInfoBeauty> userInfoBeautyMapper;
     @Autowired
     private AppConfig appConfig;
+    @Autowired
+    private RedisComponent redisComponent;
 
     /**
      * 根据条件查询列表
@@ -173,6 +180,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @param nickName 昵称
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void register(String email, String password, String nickName) {
         UserInfo userInfo = this.userInfoMapper.selectByEmail(email);
         if (Objects.nonNull(userInfo)) {
@@ -198,6 +206,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setCreateTime(curDate);
         userInfo.setStatus(UserStatusEnum.ENABLE.getStatus());
         userInfo.setLastOffTime(curDate.getTime());
+        userInfo.setJoinType(JoinTypeEnum.JOIN.getType());
         this.userInfoMapper.insert(userInfo);
         if (useBeautyAccount) {
             UserInfoBeauty updateBeauty = new UserInfoBeauty();
@@ -210,7 +219,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public TokenUserInfoDto login(String email, String password) {
+    public UserInfoVo login(String email, String password) {
         UserInfo userInfo = userInfoMapper.selectByEmail(email);
         if (Objects.isNull(userInfo) || !(password.equals(userInfo.getPassword()))) {
             throw new BusinessException(ResponseCodeEnum.CODE_602);
@@ -221,8 +230,21 @@ public class UserInfoServiceImpl implements UserInfoService {
 //        TODO 查询我的群组
 //        TODO 查询我的联系人
 
+        TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(userInfo);
 
-        return getTokenUserInfoDto(userInfo);
+        Long userHeartBeat = redisComponent.getUserHeartBeat(userInfo.getUserId());
+        if (Objects.nonNull(userHeartBeat)) {
+            throw new BusinessException(ResponseCodeEnum.CODE_604);
+        }
+        String token = StringTools.encodeMd5(tokenUserInfoDto.getUserId() + StringTools.getRandomString(Constants.LENGTH_20));
+        tokenUserInfoDto.setToken(token);
+
+        redisComponent.saveTokenUserInfoDto(tokenUserInfoDto);
+        UserInfoVo userInfoVo = CopyTools.copy(userInfo, UserInfoVo.class);
+        userInfoVo.setToken(tokenUserInfoDto.getToken());
+        userInfoVo.setAdmin(tokenUserInfoDto.getAdmin());
+
+        return userInfoVo;
 
     }
 

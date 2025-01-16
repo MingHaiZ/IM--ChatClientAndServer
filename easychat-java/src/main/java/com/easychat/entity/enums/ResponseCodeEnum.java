@@ -8,6 +8,7 @@ public enum ResponseCodeEnum {
     CODE_601(601, "信息已经存在"),
     CODE_602(602, "账号或密码错误"),
     CODE_603(603, "账号已禁用"),
+    CODE_604(604, "此账号已在别处登录,请退出后再登录"),
     CODE_500(500, "服务器返回错误，请联系管理员");
 
     private Integer code;

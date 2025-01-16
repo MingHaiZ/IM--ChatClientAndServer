@@ -1,14 +1,16 @@
 package com.easychat.controller;
 
 import com.easychat.entity.constants.Constants;
-import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.vo.ResponseVO;
+import com.easychat.entity.vo.UserInfoVo;
 import com.easychat.exception.BusinessException;
+import com.easychat.redis.RedisComponent;
 import com.easychat.redis.RedisUtils;
 import com.easychat.service.UserInfoService;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +35,8 @@ public class AccountController extends ABaseController {
 
     @Resource
     UserInfoService userInfoService;
+    @Autowired
+    private RedisComponent redisComponent;
 
     @RequestMapping("/checkCode")
     public ResponseVO checkCode(Principal principal) {
@@ -84,14 +88,19 @@ public class AccountController extends ABaseController {
             if (!checkCode.equalsIgnoreCase((String) redisUtils.get(Constants.REDIS_KEY_CHECK_CODE + checkCodeKey))) {
                 throw new BusinessException("图形验证码不正确");
             }
-            TokenUserInfoDto login = userInfoService.login(email, password);
-            redisUtils.setex(login.getToken(), login, Constants.REDIS_TIME_1DAY * 7);
+
+            UserInfoVo login = userInfoService.login(email, password);
 
             return getSuccessResponseVO(login);
         } finally {
             redisUtils.delete(Constants.REDIS_KEY_CHECK_CODE + checkCodeKey);
         }
 
+    }
+
+    @RequestMapping("/getSysSetting")
+    public ResponseVO getSysSetting() {
+        return getSuccessResponseVO(redisComponent.getSysSetting());
     }
 
 }
