@@ -1,6 +1,6 @@
 package com.easychat.entity.enums;
 
-public enum UserContactStatusCnum {
+public enum UserContactStatusEnum {
 
     NOT_FRIEND(0, "非好友"),
     FRIEND(1, "好友"),
@@ -12,9 +12,18 @@ public enum UserContactStatusCnum {
     private Integer status;
     private String desc;
 
-    UserContactStatusCnum(Integer status, String desc) {
+    UserContactStatusEnum(Integer status, String desc) {
         this.status = status;
         this.desc = desc;
+    }
+
+    public static UserContactStatusEnum getByStatus(Integer status) {
+        for (UserContactStatusEnum cnum : UserContactStatusEnum.values()) {
+            if (cnum.status.equals(status)) {
+                return cnum;
+            }
+        }
+        return null;
     }
 
     public Integer getStatus() {

@@ -7,24 +7,24 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.SysSettingDto;
-import com.easychat.entity.enums.ResponseCodeEnum;
-import com.easychat.entity.enums.UserContactStatusCnum;
-import com.easychat.entity.enums.UserContactTytpeEnum;
+import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.entity.enums.*;
 import com.easychat.entity.po.UserContact;
 import com.easychat.entity.query.UserContactQuery;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.UserContactMapper;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.UserContactService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.easychat.entity.enums.PageSize;
 import com.easychat.entity.query.GroupInfoQuery;
 import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.vo.PaginationResultVO;
@@ -51,6 +51,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Autowired
     private AppConfig appConfig;
+    @Resource
+    private UserContactService userContactService;
 
     /**
      * 根据条件查询列表
@@ -177,7 +179,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
 //            将群组添加为联系人
             UserContact userContact = new UserContact();
-            userContact.setStatus(UserContactStatusCnum.FRIEND.getStatus());
+            userContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
             userContact.setContactType(UserContactTytpeEnum.GROUP.getType());
             userContact.setUserId(groupInfo.getGroupOwnerId());
             userContact.setContactId(groupInfo.getGroupId());
@@ -203,17 +205,36 @@ public class GroupInfoServiceImpl implements GroupInfoService {
                 return;
             }
             String baseFolder = appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE;
-            log.info("----------baseFolder路径为----------{}",baseFolder);
+            log.info("----------baseFolder路径为----------{}", baseFolder);
 
             File targetFileFolder = new File(baseFolder + Constants.FILE_FOLDER_AVATAR_NAME);
             if (!targetFileFolder.exists()) {
                 targetFileFolder.mkdirs();
             }
-            log.info("----------目标文件路径为----------{}",targetFileFolder.getPath());
-            String filePath = targetFileFolder.getPath()+"/"+groupInfo.getGroupId()+Constants.IMAGE_SUFFIX;
-            log.info("----------保存文件的路径为----------{}",filePath);
+            log.info("----------目标文件路径为----------{}", targetFileFolder.getPath());
+            String filePath = targetFileFolder.getPath() + "/" + groupInfo.getGroupId() + Constants.IMAGE_SUFFIX;
+            log.info("----------保存文件的路径为----------{}", filePath);
             avatarFile.transferTo(new File(filePath));
-            avatarCover.transferTo(new File(filePath+Constants.COVER_IMAGE_SUFFIX));
+            avatarCover.transferTo(new File(filePath + Constants.COVER_IMAGE_SUFFIX));
         }
+    }
+
+    @Override
+    public GroupInfo getGroupDetailCommon(HttpServletRequest request, String groupId) {
+
+        TokenUserInfoDto tokenUserInfo = this.redisComponent.getTokenUserInfo(request.getHeader("token"));
+
+        UserContact userContactByUserIdAndContactId = this.userContactService.getUserContactByUserIdAndContactId(tokenUserInfo.getUserId(), groupId);
+
+        if (Objects.isNull(userContactByUserIdAndContactId) || !UserContactStatusEnum.FRIEND.getStatus().equals(userContactByUserIdAndContactId.getStatus())) {
+            throw new BusinessException("你不在此群聊当中或群聊不存在");
+        }
+
+        GroupInfo groupInfoByGroupId = this.getGroupInfoByGroupId(groupId);
+
+        if (Objects.isNull(groupInfoByGroupId) || !GroupStatusEnum.NORMAL.getStatus().equals(groupInfoByGroupId.getStatus())) {
+            throw new BusinessException("群聊不存在或已解散");
+        }
+        return groupInfoByGroupId;
     }
 }

@@ -8,6 +8,9 @@ import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.vo.PaginationResultVO;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotEmpty;
+
 
 /**
  *  业务接口
@@ -72,4 +75,6 @@ public interface GroupInfoService {
 	Integer deleteGroupInfoByGroupId(String groupId);
 
     void saveGroup(GroupInfo groupInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException;
+
+	GroupInfo getGroupDetailCommon(HttpServletRequest request, @NotEmpty String groupId);
 }
