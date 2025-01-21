@@ -32,4 +32,7 @@ public class RedisComponent {
         return sysSettingDto;
     }
 
+    public TokenUserInfoDto getTokenUserInfo(String token) {
+        return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN + token);
+    }
 }

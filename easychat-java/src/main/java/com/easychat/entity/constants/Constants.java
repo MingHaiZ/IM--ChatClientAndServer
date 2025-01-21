@@ -16,4 +16,8 @@ public class Constants {
     public static final String REDIS_KEY_WS_TOKEN_USERID = REDIS_KEY_WS_TOKEN + "userid:";
     public static final String ROBOT_UUID = UserContactTytpeEnum.USER.getPrefix() + "robot";
     public static final String REDIS_KEY_SYSSETTING = REDIS_KEY_PREFIX + "syssetting:";
+    public static final String FILE_FOLDER_FILE = "/file/";
+    public static final String FILE_FOLDER_AVATAR_NAME = "avatar/";
+    public static final String IMAGE_SUFFIX = ".png";
+    public static final String COVER_IMAGE_SUFFIX = "_cover.png";
 }

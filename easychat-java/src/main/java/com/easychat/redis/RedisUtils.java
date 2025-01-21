@@ -1,5 +1,6 @@
 package com.easychat.redis;
 
+import com.easychat.entity.dto.TokenUserInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;

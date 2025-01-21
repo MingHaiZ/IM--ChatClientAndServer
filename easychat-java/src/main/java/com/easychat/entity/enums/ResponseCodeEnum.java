@@ -9,7 +9,8 @@ public enum ResponseCodeEnum {
     CODE_602(602, "账号或密码错误"),
     CODE_603(603, "账号已禁用"),
     CODE_604(604, "此账号已在别处登录,请退出后再登录"),
-    CODE_500(500, "服务器返回错误，请联系管理员");
+    CODE_500(500, "服务器返回错误，请联系管理员"),
+    CODE_901(901, "登录超时");
 
     private Integer code;
 

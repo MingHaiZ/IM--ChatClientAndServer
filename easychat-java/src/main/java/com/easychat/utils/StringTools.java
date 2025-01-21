@@ -66,6 +66,9 @@ public class StringTools {
     public static String getUserId() {
         return UserContactTytpeEnum.USER.getPrefix() + getRandomNumber(Constants.LENGTH_11);
     }
+    public static String getGroupId() {
+        return UserContactTytpeEnum.GROUP.getPrefix() + getRandomNumber(Constants.LENGTH_11);
+    }
 
     public static String getRandomNumber(Integer count) {
         return RandomStringUtils.random(count, false, true);
@@ -78,5 +81,6 @@ public class StringTools {
     public static String encodeMd5(String password) {
         return StringTools.isEmpty(password) ? null : DigestUtils.md5Hex(password);
     }
+
 
 }
