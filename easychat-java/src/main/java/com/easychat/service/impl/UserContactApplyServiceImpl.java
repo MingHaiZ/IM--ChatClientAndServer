@@ -127,4 +127,28 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 	public Integer deleteUserContactApplyByApplyId(Integer applyId) {
 		return this.userContactApplyMapper.deleteByApplyId(applyId);
 	}
+
+	/**
+	 * 根据ApplyUserIdAndReceivceUserIdAndContactId获取对象
+	 */
+	@Override
+	public UserContactApply getUserContactApplyByApplyUserIdAndReceivceUserIdAndContactId(String applyUserId, String receivceUserId, String contactId) {
+		return this.userContactApplyMapper.selectByApplyUserIdAndReceivceUserIdAndContactId(applyUserId, receivceUserId, contactId);
+	}
+
+	/**
+	 * 根据ApplyUserIdAndReceivceUserIdAndContactId修改
+	 */
+	@Override
+	public Integer updateUserContactApplyByApplyUserIdAndReceivceUserIdAndContactId(UserContactApply bean, String applyUserId, String receivceUserId, String contactId) {
+		return this.userContactApplyMapper.updateByApplyUserIdAndReceivceUserIdAndContactId(bean, applyUserId, receivceUserId, contactId);
+	}
+
+	/**
+	 * 根据ApplyUserIdAndReceivceUserIdAndContactId删除
+	 */
+	@Override
+	public Integer deleteUserContactApplyByApplyUserIdAndReceivceUserIdAndContactId(String applyUserId, String receivceUserId, String contactId) {
+		return this.userContactApplyMapper.deleteByApplyUserIdAndReceivceUserIdAndContactId(applyUserId, receivceUserId, contactId);
+	}
 }

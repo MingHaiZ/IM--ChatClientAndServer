@@ -3,6 +3,10 @@ package com.easychat.controller;
 import com.easychat.annotation.GlobalInterceptor;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.dto.UserContactSearchResultDto;
+import com.easychat.entity.enums.PageSize;
+import com.easychat.entity.po.UserContactApply;
+import com.easychat.entity.query.UserContactApplyQuery;
+import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.entity.vo.ResponseVO;
 import com.easychat.service.UserContactApplyService;
 import com.easychat.service.UserContactService;
@@ -36,5 +40,30 @@ public class UserContactController extends ABaseController {
 
         return getSuccessResponseVO(resultDto);
     }
+
+    @RequestMapping("applyAdd")
+    @GlobalInterceptor
+    public ResponseVO applyAdd(HttpServletRequest request, @NotEmpty String contactId, String applyInfo, @NotEmpty String contactType) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        Integer joinType = this.userContactService.applyAdd(tokenUserInfo, contactId, applyInfo);
+        return getSuccessResponseVO(joinType);
+    }
+
+    @RequestMapping("loadApply")
+    @GlobalInterceptor
+    public ResponseVO loadApply(HttpServletRequest request, Integer pageNo) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        UserContactApplyQuery query = new UserContactApplyQuery();
+        query.setOrderBy("last_apply_time desc");
+        query.setReceivceUserId(tokenUserInfo.getUserId());
+        query.setPageNo(pageNo);
+        query.setPageSize(PageSize.SIZE15.getSize());
+        query.setQueryContactInfo(true);
+        PaginationResultVO<UserContactApply> listByPage = userContactApplyService.findListByPage(query);
+        return getSuccessResponseVO(listByPage);
+
+
+    }
+
 
 }

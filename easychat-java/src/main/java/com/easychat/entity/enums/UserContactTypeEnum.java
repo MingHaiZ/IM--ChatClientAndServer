@@ -2,7 +2,7 @@ package com.easychat.entity.enums;
 
 import com.easychat.utils.StringTools;
 
-public enum UserContactTytpeEnum {
+public enum UserContactTypeEnum {
 
     USER(0, "U", "好友"),
     GROUP(1, "G", "群组");
@@ -11,7 +11,7 @@ public enum UserContactTytpeEnum {
     private String prefix;
     private String desc;
 
-    UserContactTytpeEnum(Integer type, String prefix, String desc) {
+    UserContactTypeEnum(Integer type, String prefix, String desc) {
         this.type = type;
         this.prefix = prefix;
         this.desc = desc;
@@ -29,24 +29,24 @@ public enum UserContactTytpeEnum {
         return desc;
     }
 
-    public static UserContactTytpeEnum getByName(String name) {
+    public static UserContactTypeEnum getByName(String name) {
         try {
             if (StringTools.isEmpty(name)) {
                 return null;
             }
-            return UserContactTytpeEnum.valueOf(name.toUpperCase());
+            return UserContactTypeEnum.valueOf(name.toUpperCase());
         } catch (Exception e) {
             return null;
         }
     }
 
-    public static UserContactTytpeEnum getByPrefix(String prefix) {
+    public static UserContactTypeEnum getByPrefix(String prefix) {
         try {
             if (StringTools.isEmpty(prefix) || prefix.trim().isEmpty()) {
                 return null;
             }
             prefix = prefix.substring(0, 1).toUpperCase();
-            for (UserContactTytpeEnum type : UserContactTytpeEnum.values()) {
+            for (UserContactTypeEnum type : UserContactTypeEnum.values()) {
                 if (type.getPrefix().equals(prefix)) {
                     return type;
                 }

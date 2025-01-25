@@ -20,14 +20,14 @@
 		<!--状态 0:待处理 1:已同意 2:已拒绝 3:已拉黑-->
 		<result column="status" property="status"  />
 		<!--申请信息-->
-		<result column="apply_time" property="applyTime"  />
+		<result column="apply_info" property="applyInfo"  />
 	</resultMap>
 
 
 	<!-- 通用查询结果列-->
 	<sql id="base_column_list">
 		 u.apply_id,u.apply_user_id,u.receivce_user_id,u.contact_type,u.contact_id,
-		 u.last_apply_time,u.status,u.apply_time
+		 u.last_apply_time,u.status,u.apply_info
 	</sql>
 
 	<sql id="base_condition_filed">
@@ -52,8 +52,8 @@
 			<if test="query.status != null">
 				 and  u.status = #{query.status}
 			</if>
-			<if test="query.applyTime != null and query.applyTime!=''">
-				 and  u.apply_time = #{query.applyTime}
+			<if test="query.applyInfo != null and query.applyInfo!=''">
+				 and  u.apply_info = #{query.applyInfo}
 			</if>
 	</sql>
 	<!-- 通用条件列-->
@@ -76,22 +76,31 @@
 			<if test="query.contactIdFuzzy!= null  and query.contactIdFuzzy!=''">
 				 and  u.contact_id like concat('%', #{query.contactIdFuzzy}, '%')
 			</if>
-			<if test="query.applyTimeFuzzy!= null  and query.applyTimeFuzzy!=''">
-				 and  u.apply_time like concat('%', #{query.applyTimeFuzzy}, '%')
+			<if test="query.applyInfoFuzzy!= null  and query.applyInfoFuzzy!=''">
+				 and  u.apply_info like concat('%', #{query.applyInfoFuzzy}, '%')
 			</if>
 	 </where>
 	</sql>
 
 	<!-- 查询集合-->
 	<select id="selectList" resultMap="base_result_map" >
-		 SELECT <include refid="base_column_list" /> FROM user_contact_apply u <include refid="query_condition" />
-		 <if test="query.orderBy!=null">
-			 order by ${query.orderBy}
-		 </if>
-		 <if test="query.simplePage!=null">
-			 limit #{query.simplePage.start},#{query.simplePage.end}
-		 </if>
-	</select>
+        SELECT
+        <include refid="base_column_list"/>
+        <if test="query.queryContactInfo">
+            , ui.nick_name contactName
+        </if>
+        FROM user_contact_apply u
+        <if test="query.queryContactInfo">
+            inner join user_info ui on u.apply_user_id = ui.user_id
+        </if>
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
 
 	<!-- 查询数量-->
 	<select id="selectCount" resultType="java.lang.Integer" >
@@ -123,8 +132,8 @@
 			<if test="bean.status != null">
 				 status,
 			</if>
-			<if test="bean.applyTime != null">
-				 apply_time,
+			<if test="bean.applyInfo != null">
+				 apply_info,
 			</if>
 		 </trim>
 		 <trim prefix="values (" suffix=")" suffixOverrides="," >
@@ -146,8 +155,8 @@
 			<if test="bean.status!=null">
 				 #{bean.status},
 			</if>
-			<if test="bean.applyTime!=null">
-				 #{bean.applyTime},
+			<if test="bean.applyInfo!=null">
+				 #{bean.applyInfo},
 			</if>
 		 </trim>
 	</insert>
@@ -177,8 +186,8 @@
 			<if test="bean.status != null">
 				 status,
 			</if>
-			<if test="bean.applyTime != null">
-				 apply_time,
+			<if test="bean.applyInfo != null">
+				 apply_info,
 			</if>
 		 </trim>
 		 <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -203,8 +212,8 @@
 			<if test="bean.status!=null">
 				 #{bean.status},
 			</if>
-			<if test="bean.applyTime!=null">
-				 #{bean.applyTime},
+			<if test="bean.applyInfo!=null">
+				 #{bean.applyInfo},
 			</if>
 		 </trim>
 		 on DUPLICATE key update 
@@ -227,8 +236,8 @@
 			<if test="bean.status!=null">
 				 status = VALUES(status),
 			</if>
-			<if test="bean.applyTime!=null">
-				 apply_time = VALUES(apply_time),
+			<if test="bean.applyInfo!=null">
+				 apply_info = VALUES(apply_info),
 			</if>
 		 </trim>
 	</insert>
@@ -242,7 +251,7 @@
 			 contact_id,
 			 last_apply_time,
 			 status,
-			 apply_time
+			 apply_info
 		 )values
 		 <foreach collection="list" item="item" separator=",">
 			 (
@@ -252,7 +261,7 @@
 				 #{item.contactId},
 				 #{item.lastApplyTime},
 				 #{item.status},
-				 #{item.applyTime}
+				 #{item.applyInfo}
 			 )
 		 </foreach>
 	</insert>
@@ -266,7 +275,7 @@
 			 contact_id,
 			 last_apply_time,
 			 status,
-			 apply_time
+			 apply_info
 		 )values
 		 <foreach collection="list" item="item" separator=",">
 			 (
@@ -276,7 +285,7 @@
 				 #{item.contactId},
 				 #{item.lastApplyTime},
 				 #{item.status},
-				 #{item.applyTime}
+				 #{item.applyInfo}
 			 )
 		 </foreach>
 			on DUPLICATE key update 
@@ -286,7 +295,7 @@
 			contact_id = VALUES(contact_id),
 			last_apply_time = VALUES(last_apply_time),
 			status = VALUES(status),
-			apply_time = VALUES(apply_time)
+			apply_info = VALUES(apply_info)
 	</insert>
 
 	<!--多条件修改-->
@@ -311,8 +320,8 @@
 			<if test="bean.status != null">
 				 status = #{bean.status},
 			</if>
-			<if test="bean.applyTime != null">
-				 apply_time = #{bean.applyTime},
+			<if test="bean.applyInfo != null">
+				 apply_info = #{bean.applyInfo},
 			</if>
  		 </set>
  		 <include refid="query_condition" />
@@ -346,8 +355,8 @@
 			<if test="bean.status != null">
 				 status = #{bean.status},
 			</if>
-			<if test="bean.applyTime != null">
-				 apply_time = #{bean.applyTime},
+			<if test="bean.applyInfo != null">
+				 apply_info = #{bean.applyInfo},
 			</if>
  		 </set>
  		 where apply_id=#{applyId}
@@ -361,6 +370,36 @@
 	<!-- 根据PrimaryKey获取对象-->
 	<select id="selectByApplyId" resultMap="base_result_map" >
 		select <include refid="base_column_list" /> from user_contact_apply u where apply_id=#{applyId}
+	</select>
+
+	<!-- 根据ApplyUserIdAndReceivceUserIdAndContactId修改-->
+	<update id="updateByApplyUserIdAndReceivceUserIdAndContactId" parameterType="com.easychat.entity.po.UserContactApply">
+		 UPDATE user_contact_apply
+ 		 <set> 
+			<if test="bean.contactType != null">
+				 contact_type = #{bean.contactType},
+			</if>
+			<if test="bean.lastApplyTime != null">
+				 last_apply_time = #{bean.lastApplyTime},
+			</if>
+			<if test="bean.status != null">
+				 status = #{bean.status},
+			</if>
+			<if test="bean.applyInfo != null">
+				 apply_info = #{bean.applyInfo},
+			</if>
+ 		 </set>
+ 		 where apply_user_id=#{applyUserId} and receivce_user_id=#{receivceUserId} and contact_id=#{contactId}
+	</update>
+
+	<!-- 根据ApplyUserIdAndReceivceUserIdAndContactId删除-->
+	<delete id="deleteByApplyUserIdAndReceivceUserIdAndContactId">
+		delete from user_contact_apply where apply_user_id=#{applyUserId} and receivce_user_id=#{receivceUserId} and contact_id=#{contactId}
+	</delete>
+
+	<!-- 根据PrimaryKey获取对象-->
+	<select id="selectByApplyUserIdAndReceivceUserIdAndContactId" resultMap="base_result_map" >
+		select <include refid="base_column_list" /> from user_contact_apply u where apply_user_id=#{applyUserId} and receivce_user_id=#{receivceUserId} and contact_id=#{contactId}
 	</select>
 
 </mapper>

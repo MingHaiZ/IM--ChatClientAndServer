@@ -2,10 +2,13 @@ package com.easychat.service;
 
 import java.util.List;
 
+import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.dto.UserContactSearchResultDto;
 import com.easychat.entity.query.UserContactQuery;
 import com.easychat.entity.po.UserContact;
 import com.easychat.entity.vo.PaginationResultVO;
+
+import javax.validation.constraints.NotEmpty;
 
 
 /**
@@ -72,4 +75,5 @@ public interface UserContactService {
 
     UserContactSearchResultDto searchContact(String userId, String contactId);
 
+    Integer applyAdd(TokenUserInfoDto tokenUserInfo, @NotEmpty String contactId, String applyInfo);
 }

@@ -190,7 +190,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         UserInfoBeauty userInfoBeauty = userInfoBeautyMapper.selectByEmail(email);
         Boolean useBeautyAccount = Objects.nonNull(userInfoBeauty) && BeautyAccountStatusEnum.NO_USE.getStatus().equals(userInfoBeauty.getStatus());
         if (useBeautyAccount) {
-            userId = UserContactTytpeEnum.USER.getPrefix() + userInfoBeauty.getUserId();
+            userId = UserContactTypeEnum.USER.getPrefix() + userInfoBeauty.getUserId();
 
         } else {
             userId = StringTools.getUserId();

@@ -180,7 +180,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 //            将群组添加为联系人
             UserContact userContact = new UserContact();
             userContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
-            userContact.setContactType(UserContactTytpeEnum.GROUP.getType());
+            userContact.setContactType(UserContactTypeEnum.GROUP.getType());
             userContact.setUserId(groupInfo.getGroupOwnerId());
             userContact.setContactId(groupInfo.getGroupId());
             userContact.setCreateTime(date);
