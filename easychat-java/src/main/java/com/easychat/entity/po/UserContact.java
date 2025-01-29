@@ -1,7 +1,5 @@
 package com.easychat.entity.po;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Date;
 
 import com.easychat.entity.enums.DateTimePatternEnum;
@@ -52,15 +50,15 @@ public class UserContact implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastUpdateTime;
 
-    private String contact_name;
+    private String contactName;
     private Integer sex;
 
-    public String getContact_name() {
-        return contact_name;
+    public String getContactName() {
+        return contactName;
     }
 
-    public void setContact_name(String contact_name) {
-        this.contact_name = contact_name;
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
     }
 
     public Integer getSex() {

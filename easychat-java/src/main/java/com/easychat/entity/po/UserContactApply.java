@@ -53,6 +53,16 @@ public class UserContactApply implements Serializable {
 
     private String contactName;
 
+    private String statusName;
+
+    public String getStatusName() {
+        return statusName;
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
     public String getContactName() {
         return contactName;
     }

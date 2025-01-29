@@ -87,11 +87,17 @@
         SELECT
         <include refid="base_column_list"/>
         <if test="query.queryContactInfo">
-            , ui.nick_name contactName
+            , case
+            when u.contact_type = 0 then ui.nick_name
+            when u.contact_type = 1 then gi.group_name
+            end as contactName
         </if>
         FROM user_contact_apply u
         <if test="query.queryContactInfo">
-            inner join user_info ui on u.apply_user_id = ui.user_id
+
+            left join user_info ui on u.apply_user_id = ui.user_id and u.receivce_user_id = #{query.receivceUserId}
+            left join group_info gi on gi.group_id = u.contact_id
+
         </if>
         <include refid="query_condition"/>
         <if test="query.orderBy!=null">

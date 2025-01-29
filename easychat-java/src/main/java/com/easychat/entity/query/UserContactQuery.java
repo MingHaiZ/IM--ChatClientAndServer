@@ -1,5 +1,7 @@
 package com.easychat.entity.query;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import java.util.Date;
 
 
@@ -52,6 +54,46 @@ public class UserContactQuery extends BaseParam {
     private String lastUpdateTimeEnd;
 
     private Boolean queryUserInfo;
+
+    private Boolean queryGroupInfo;
+
+    private Boolean queryContactUserInfo;
+
+    private Boolean excludeMyGroups;
+
+    private Integer[] statusArray;
+
+    public Integer[] getStatusArray() {
+        return statusArray;
+    }
+
+    public void setStatusArray(Integer[] statusArray) {
+        this.statusArray = statusArray;
+    }
+
+    public Boolean getExcludeMyGroups() {
+        return excludeMyGroups;
+    }
+
+    public void setExcludeMyGroups(Boolean excludeMyGroups) {
+        this.excludeMyGroups = excludeMyGroups;
+    }
+
+    public Boolean getQueryContactUserInfo() {
+        return queryContactUserInfo;
+    }
+
+    public void setQueryContactUserInfo(Boolean queryContactUserInfo) {
+        this.queryContactUserInfo = queryContactUserInfo;
+    }
+
+    public Boolean getQueryGroupInfo() {
+        return queryGroupInfo;
+    }
+
+    public void setQueryGroupInfo(Boolean queryGroupInfo) {
+        this.queryGroupInfo = queryGroupInfo;
+    }
 
     public Boolean getQueryUserInfo() {
         return queryUserInfo;

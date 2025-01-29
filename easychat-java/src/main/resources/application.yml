@@ -52,3 +52,6 @@ spring:
 admin:
   emails: test@qq.com
 dev: false
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
