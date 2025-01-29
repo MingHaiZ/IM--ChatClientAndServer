@@ -1,6 +1,7 @@
 package com.easychat.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -255,5 +256,31 @@ public class UserContactServiceImpl implements UserContactService {
         }
 
         return joinType;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void removeUserContact(String userId, String contactId, UserContactStatusEnum userContactStatusEnum) {
+        List<UserContact> userContactList = new ArrayList<>();
+//        自己视角移除好友
+        Date currentDate = new Date();
+        UserContact userContact = userContactMapper.selectByUserIdAndContactId(userId, contactId);
+        if (userContact == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        userContact.setStatus(userContactStatusEnum.getStatus());
+        userContact.setLastUpdateTime(currentDate);
+        userContactList.add(userContact);
+
+//        被删除的好友视角
+        UserContact friendUserContact = userContactMapper.selectByUserIdAndContactId(contactId, userId);
+        if (friendUserContact == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        friendUserContact.setStatus(UserContactStatusEnum.DEL_BE.getStatus());
+        friendUserContact.setLastUpdateTime(currentDate);
+        userContactList.add(friendUserContact);
+
+        this.userContactMapper.insertOrUpdateBatch(userContactList);
     }
 }

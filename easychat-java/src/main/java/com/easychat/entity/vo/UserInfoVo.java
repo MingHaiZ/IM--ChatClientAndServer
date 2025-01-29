@@ -14,6 +14,7 @@ public class UserInfoVo implements Serializable {
     private String areaName;
     private String token;
     private Boolean admin;
+    private Integer contactStatus;
 
     public String getUserId() {
         return userId;
@@ -85,5 +86,13 @@ public class UserInfoVo implements Serializable {
 
     public void setAdmin(Boolean admin) {
         this.admin = admin;
+    }
+
+    public void setContactStatus(Integer contactStatus) {
+        this.contactStatus = contactStatus;
+    }
+
+    public Integer getContactStatus() {
+        return contactStatus;
     }
 }

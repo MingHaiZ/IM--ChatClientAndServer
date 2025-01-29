@@ -77,7 +77,7 @@
             </if>
 
             <if test="query.statusArray !=null">
-                and u.status in ( <foreach collection="query.statusArray" item="item" separator=",">#{item}</foreach>> )
+                and u.status in (<foreach collection="query.statusArray" item="item" separator=",">#{item}</foreach>)
             </if>
         </where>
     </sql>
