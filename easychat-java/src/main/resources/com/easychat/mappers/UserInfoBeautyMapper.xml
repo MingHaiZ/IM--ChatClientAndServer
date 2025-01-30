@@ -183,7 +183,7 @@
 	</insert>
 
 	<!--多条件修改-->
-	<update id="updateByParam" parameterType="com.easychat.entity.query.UserInfoBeauty">
+	<update id="updateByParam" parameterType="com.easychat.entity.query.UserInfoBeautyQuery">
 		 UPDATE user_info_beauty u
  		 <set> 
 			<if test="bean.email != null">

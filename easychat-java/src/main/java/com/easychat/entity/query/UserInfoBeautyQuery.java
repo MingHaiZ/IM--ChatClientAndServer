@@ -5,7 +5,7 @@ package com.easychat.entity.query;
 /**
  * 用户靓号表参数
  */
-public class UserInfoBeauty extends BaseParam {
+public class UserInfoBeautyQuery extends BaseParam {
 
 
 	/**

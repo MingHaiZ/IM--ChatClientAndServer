@@ -263,13 +263,11 @@ public class UserContactServiceImpl implements UserContactService {
     public void removeUserContact(String userId, String contactId, UserContactStatusEnum userContactStatusEnum) {
         List<UserContact> userContactList = new ArrayList<>();
 //        自己视角移除好友
-        Date currentDate = new Date();
         UserContact userContact = userContactMapper.selectByUserIdAndContactId(userId, contactId);
         if (userContact == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
         userContact.setStatus(userContactStatusEnum.getStatus());
-        userContact.setLastUpdateTime(currentDate);
         userContactList.add(userContact);
 
 //        被删除的好友视角
@@ -277,10 +275,17 @@ public class UserContactServiceImpl implements UserContactService {
         if (friendUserContact == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
-        friendUserContact.setStatus(UserContactStatusEnum.DEL_BE.getStatus());
-        friendUserContact.setLastUpdateTime(currentDate);
-        userContactList.add(friendUserContact);
+        if (UserContactStatusEnum.DEL == userContactStatusEnum) {
+            friendUserContact.setStatus(UserContactStatusEnum.DEL_BE.getStatus());
+            userContactList.add(friendUserContact);
+        } else if (UserContactStatusEnum.BLACKLIST == userContactStatusEnum) {
+            friendUserContact.setStatus(UserContactStatusEnum.BLACKLIST_BE.getStatus());
+            userContactList.add(friendUserContact);
+        }
 
         this.userContactMapper.insertOrUpdateBatch(userContactList);
+//        TODO 从我的列表缓存中删除好友
+//        TODO 从好友列表缓存中删除我
+
     }
 }

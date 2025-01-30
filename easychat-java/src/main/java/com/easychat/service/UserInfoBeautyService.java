@@ -2,8 +2,11 @@ package com.easychat.service;
 
 import java.util.List;
 
-import com.easychat.entity.query.UserInfoBeauty;
+import com.easychat.entity.query.UserInfoBeautyQuery;
+import com.easychat.entity.po.UserInfoBeauty;
 import com.easychat.entity.vo.PaginationResultVO;
+
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -14,53 +17,53 @@ public interface UserInfoBeautyService {
 	/**
 	 * 根据条件查询列表
 	 */
-	List<com.easychat.entity.po.UserInfoBeauty> findListByParam(UserInfoBeauty param);
+	List<UserInfoBeauty> findListByParam(UserInfoBeautyQuery param);
 
 	/**
 	 * 根据条件查询列表
 	 */
-	Integer findCountByParam(UserInfoBeauty param);
+	Integer findCountByParam(UserInfoBeautyQuery param);
 
 	/**
 	 * 分页查询
 	 */
-	PaginationResultVO<com.easychat.entity.po.UserInfoBeauty> findListByPage(UserInfoBeauty param);
+	PaginationResultVO<UserInfoBeauty> findListByPage(UserInfoBeautyQuery param);
 
 	/**
 	 * 新增
 	 */
-	Integer add(com.easychat.entity.po.UserInfoBeauty bean);
+	Integer add(UserInfoBeauty bean);
 
 	/**
 	 * 批量新增
 	 */
-	Integer addBatch(List<com.easychat.entity.po.UserInfoBeauty> listBean);
+	Integer addBatch(List<UserInfoBeauty> listBean);
 
 	/**
 	 * 批量新增/修改
 	 */
-	Integer addOrUpdateBatch(List<com.easychat.entity.po.UserInfoBeauty> listBean);
+	Integer addOrUpdateBatch(List<UserInfoBeauty> listBean);
 
 	/**
 	 * 多条件更新
 	 */
-	Integer updateByParam(com.easychat.entity.po.UserInfoBeauty bean, UserInfoBeauty param);
+	Integer updateByParam(UserInfoBeauty bean,UserInfoBeautyQuery param);
 
 	/**
 	 * 多条件删除
 	 */
-	Integer deleteByParam(UserInfoBeauty param);
+	Integer deleteByParam(UserInfoBeautyQuery param);
 
 	/**
 	 * 根据Id查询对象
 	 */
-	com.easychat.entity.po.UserInfoBeauty getUserInfoBeautyById(Integer id);
+	UserInfoBeauty getUserInfoBeautyById(Integer id);
 
 
 	/**
 	 * 根据Id修改
 	 */
-	Integer updateUserInfoBeautyById(com.easychat.entity.po.UserInfoBeauty bean, Integer id);
+	Integer updateUserInfoBeautyById(UserInfoBeauty bean,Integer id);
 
 
 	/**
@@ -72,13 +75,13 @@ public interface UserInfoBeautyService {
 	/**
 	 * 根据Email查询对象
 	 */
-	com.easychat.entity.po.UserInfoBeauty getUserInfoBeautyByEmail(String email);
+	UserInfoBeauty getUserInfoBeautyByEmail(String email);
 
 
 	/**
 	 * 根据Email修改
 	 */
-	Integer updateUserInfoBeautyByEmail(com.easychat.entity.po.UserInfoBeauty bean, String email);
+	Integer updateUserInfoBeautyByEmail(UserInfoBeauty bean,String email);
 
 
 	/**
@@ -90,13 +93,13 @@ public interface UserInfoBeautyService {
 	/**
 	 * 根据UserId查询对象
 	 */
-	com.easychat.entity.po.UserInfoBeauty getUserInfoBeautyByUserId(String userId);
+	UserInfoBeauty getUserInfoBeautyByUserId(String userId);
 
 
 	/**
 	 * 根据UserId修改
 	 */
-	Integer updateUserInfoBeautyByUserId(com.easychat.entity.po.UserInfoBeauty bean, String userId);
+	Integer updateUserInfoBeautyByUserId(UserInfoBeauty bean,String userId);
 
 
 	/**
@@ -104,4 +107,7 @@ public interface UserInfoBeautyService {
 	 */
 	Integer deleteUserInfoBeautyByUserId(String userId);
 
+	void saveBeautAccount(Integer id, String email, String userId, Integer status);
+
+	void delBeautAccount(@NotNull Integer id);
 }

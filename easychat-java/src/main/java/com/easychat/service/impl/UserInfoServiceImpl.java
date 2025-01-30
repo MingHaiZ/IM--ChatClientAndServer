@@ -1,5 +1,7 @@
 package com.easychat.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +12,7 @@ import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
-import com.easychat.entity.query.UserInfoBeauty;
+import com.easychat.entity.po.UserInfoBeauty;
 import com.easychat.entity.vo.UserInfoVo;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.UserInfoBeautyMapper;
@@ -28,6 +30,7 @@ import com.easychat.mappers.UserInfoMapper;
 import com.easychat.service.UserInfoService;
 import com.easychat.utils.StringTools;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 /**
@@ -246,6 +249,53 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         return userInfoVo;
 
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException {
+        if (avatarFile != null) {
+            String baseFolder = appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE;
+            File targetFileFolder = new File(baseFolder + Constants.FILE_FOLDER_AVATAR_NAME);
+            if (!targetFileFolder.exists()) {
+                targetFileFolder.mkdirs();
+            }
+            String filePath = targetFileFolder.getPath() + "/" + userInfo.getUserId() + Constants.IMAGE_SUFFIX;
+            avatarFile.transferTo(new File(filePath));
+            avatarCover.transferTo(new File(filePath + Constants.COVER_IMAGE_SUFFIX));
+        }
+        UserInfo dbUserInfo = this.userInfoMapper.selectByUserId(userInfo.getUserId());
+
+        this.userInfoMapper.updateByUserId(userInfo, userInfo.getUserId());
+
+        String contactName = null;
+        if (!dbUserInfo.getNickName().equals(userInfo.getNickName())) {
+            contactName = userInfo.getNickName();
+        }
+
+//        TODO 更新会话信息中的昵称信息
+
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePassword(String userId, String password) {
+        UserInfo userInfo = userInfoMapper.selectByUserId(userId);
+        if (userInfo == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        String pwdAfterEncode = StringTools.encodeMd5(password);
+        userInfo = new UserInfo();
+        userInfo.setPassword(pwdAfterEncode);
+        this.userInfoMapper.updateByUserId(userInfo, userId);
+
+//        TODO 强制退出,重新登录
+    }
+
+    @Override
+    public void forceOffLine(String userId) {
+//        TODO 强制下线
     }
 
     private TokenUserInfoDto getTokenUserInfoDto(UserInfo userInfo) {

@@ -35,4 +35,9 @@ public class RedisComponent {
     public TokenUserInfoDto getTokenUserInfo(String token) {
         return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN + token);
     }
+
+    public void logout(TokenUserInfoDto tokenUserInfoDto) {
+        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN + tokenUserInfoDto.getToken());
+        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfoDto.getUserId());
+    }
 }

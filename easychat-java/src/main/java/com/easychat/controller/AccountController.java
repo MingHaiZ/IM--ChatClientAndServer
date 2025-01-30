@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class AccountController extends ABaseController {
     @RequestMapping("/register")
     public ResponseVO register(@NotEmpty String checkCodeKey,
                                @NotEmpty @Email String email,
-                               @NotEmpty String password,
+                               @NotEmpty @Pattern(regexp = Constants.REGEX_PASSWORD) String password,
                                @NotEmpty String nickName,
                                @NotEmpty String checkCode) {
 
