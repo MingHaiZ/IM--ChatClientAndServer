@@ -56,6 +56,15 @@ public class GroupInfoQuery extends BaseParam {
 	 */
 	private Integer status;
 
+	private Boolean queryAdminGroupInfo;
+
+	public Boolean getQueryAdminGroupInfo() {
+		return queryAdminGroupInfo;
+	}
+
+	public void setQueryAdminGroupInfo(Boolean queryAdminGroupInfo) {
+		this.queryAdminGroupInfo = queryAdminGroupInfo;
+	}
 
 	public void setGroupId(String groupId){
 		this.groupId = groupId;

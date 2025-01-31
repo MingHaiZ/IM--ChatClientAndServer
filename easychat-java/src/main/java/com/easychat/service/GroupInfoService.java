@@ -77,4 +77,6 @@ public interface GroupInfoService {
     void saveGroup(GroupInfo groupInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException;
 
 	GroupInfo getGroupDetailCommon(HttpServletRequest request, @NotEmpty String groupId);
+
+    void dissolutionGroup(String groupOwnerId, @NotEmpty String groupId);
 }

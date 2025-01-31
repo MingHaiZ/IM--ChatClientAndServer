@@ -40,4 +40,8 @@ public class RedisComponent {
         redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN + tokenUserInfoDto.getToken());
         redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfoDto.getUserId());
     }
+
+    public void setSysSetting(SysSettingDto sysSettingDto) {
+        redisUtils.set(Constants.REDIS_KEY_SYSSETTING, sysSettingDto);
+    }
 }

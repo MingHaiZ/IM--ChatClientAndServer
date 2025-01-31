@@ -237,4 +237,30 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         }
         return groupInfoByGroupId;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void dissolutionGroup(String groupOwnerId, String groupId) {
+        GroupInfo groupInfo = this.groupInfoMapper.selectByGroupId(groupId);
+        if (!groupInfo.getGroupOwnerId().equals(groupOwnerId)) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        GroupInfo updateInfo = new GroupInfo();
+        updateInfo.setStatus(GroupStatusEnum.DISSOLUTION.getStatus());
+        this.groupInfoMapper.updateByGroupId(updateInfo, groupId);
+
+//         更新联系人信息
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setContactId(groupId);
+        userContactQuery.setContactType(UserContactTypeEnum.GROUP.getType());
+
+        UserContact userContact = new UserContact();
+        userContact.setStatus(UserContactStatusEnum.DEL.getStatus());
+        this.userContactMapper.updateByParam(userContact, userContactQuery);
+
+//        TODO 移除相关群员联系人的缓存
+
+//        TODO 发消息 1.更新会话消息 2.记录群消息 3.发送解散消息
+
+    }
 }

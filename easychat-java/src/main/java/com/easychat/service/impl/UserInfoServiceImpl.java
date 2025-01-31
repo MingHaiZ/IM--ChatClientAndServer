@@ -193,7 +193,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         UserInfoBeauty userInfoBeauty = userInfoBeautyMapper.selectByEmail(email);
         Boolean useBeautyAccount = Objects.nonNull(userInfoBeauty) && BeautyAccountStatusEnum.NO_USE.getStatus().equals(userInfoBeauty.getStatus());
         if (useBeautyAccount) {
-            userId = UserContactTypeEnum.USER.getPrefix() + userInfoBeauty.getUserId();
+            userId = userInfoBeauty.getUserId();
 
         } else {
             userId = StringTools.getUserId();
@@ -214,7 +214,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (useBeautyAccount) {
             UserInfoBeauty updateBeauty = new UserInfoBeauty();
             updateBeauty.setStatus(BeautyAccountStatusEnum.USED.getStatus());
-            this.userInfoBeautyMapper.updateById(updateBeauty, updateBeauty.getId());
+            this.userInfoBeautyMapper.updateById(updateBeauty, userInfoBeauty.getId());
         }
 //        TODO 创建机器人好友
 

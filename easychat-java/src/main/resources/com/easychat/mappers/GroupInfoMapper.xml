@@ -85,14 +85,24 @@
 
 	<!-- 查询集合-->
 	<select id="selectList" resultMap="base_result_map" >
-		 SELECT <include refid="base_column_list" /> FROM group_info g <include refid="query_condition" />
-		 <if test="query.orderBy!=null">
-			 order by ${query.orderBy}
-		 </if>
-		 <if test="query.simplePage!=null">
-			 limit #{query.simplePage.start},#{query.simplePage.end}
-		 </if>
-	</select>
+        SELECT
+        <include refid="base_column_list"/>
+        <if test="query.queryAdminGroupInfo">
+            , u.nick_name groupOwnerNickName
+            , (select count(1) from user_contact c where c.contact_id = g.group_id) memberCount
+        </if>
+        FROM group_info g
+        <if test="query.queryAdminGroupInfo">
+            left join user_info u on g.group_owner_id = u.user_id
+        </if>
+        <include refid="query_condition"/>
+        <if test="query.orderBy!=null">
+            order by ${query.orderBy}
+        </if>
+        <if test="query.simplePage!=null">
+            limit #{query.simplePage.start},#{query.simplePage.end}
+        </if>
+    </select>
 
 	<!-- 查询数量-->
 	<select id="selectCount" resultType="java.lang.Integer" >

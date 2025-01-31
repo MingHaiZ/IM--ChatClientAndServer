@@ -1,5 +1,6 @@
 package com.easychat.controller;
 
+import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.ResponseCodeEnum;
 import com.easychat.entity.vo.ResponseVO;
@@ -55,4 +56,5 @@ public class ABaseController {
         String token = request.getHeader("token");
         return redisComponent.getTokenUserInfo(token);
     }
+
 }

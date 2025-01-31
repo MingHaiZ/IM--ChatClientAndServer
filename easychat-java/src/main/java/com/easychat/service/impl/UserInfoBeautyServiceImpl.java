@@ -4,11 +4,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.easychat.entity.enums.BeautyAccountStatusEnum;
 import com.easychat.entity.enums.ResponseCodeEnum;
 import com.easychat.entity.enums.UserContactTypeEnum;
-import com.easychat.entity.enums.UserInfoBeautyStatusEnum;
 import com.easychat.exception.BusinessException;
-import org.aspectj.apache.bcel.classfile.Code;
 import org.springframework.stereotype.Service;
 
 import com.easychat.entity.enums.PageSize;
@@ -186,17 +185,18 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService {
     @Transactional(rollbackFor = Exception.class)
     public void saveBeautAccount(Integer id, String email, String userId, Integer status) {
         if (userId != null && status != null) {
-            UserInfoBeautyStatusEnum byStatus = UserInfoBeautyStatusEnum.getByStatus(status);
-            if (byStatus == null) {
-                throw new BusinessException(ResponseCodeEnum.CODE_600);
-            }
-            if (byStatus.equals(UserInfoBeautyStatusEnum.USED)) {
-                throw new BusinessException("该靓号已被使用");
-            }
             UserInfoBeauty userInfoBeauty = this.userInfoBeautyMapper.selectById(id);
             if (userInfoBeauty == null) {
                 throw new BusinessException(ResponseCodeEnum.CODE_600);
             }
+            BeautyAccountStatusEnum byStatus = BeautyAccountStatusEnum.getByStatus(userInfoBeauty.getStatus());
+            if (byStatus == null) {
+                throw new BusinessException(ResponseCodeEnum.CODE_600);
+            }
+            if (byStatus.equals(BeautyAccountStatusEnum.USED)) {
+                throw new BusinessException("该靓号已被使用");
+            }
+
             userInfoBeauty.setEmail(email);
             userInfoBeauty.setUserId(UserContactTypeEnum.USER.getPrefix() + userId);
             this.userInfoBeautyMapper.updateById(userInfoBeauty, id);
@@ -204,7 +204,7 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService {
             UserInfoBeauty userInfoBeauty = new UserInfoBeauty();
             userInfoBeauty.setEmail(email);
             userInfoBeauty.setUserId(UserContactTypeEnum.USER.getPrefix() + userId);
-            userInfoBeauty.setStatus(UserInfoBeautyStatusEnum.UN_USE.getStatus());
+            userInfoBeauty.setStatus(BeautyAccountStatusEnum.NO_USE.getStatus());
             this.userInfoBeautyMapper.insert(userInfoBeauty);
         }
     }
@@ -215,11 +215,11 @@ public class UserInfoBeautyServiceImpl implements UserInfoBeautyService {
         if (userInfoBeauty == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
-        UserInfoBeautyStatusEnum byStatus = UserInfoBeautyStatusEnum.getByStatus(userInfoBeauty.getStatus());
+        BeautyAccountStatusEnum byStatus = BeautyAccountStatusEnum.getByStatus(userInfoBeauty.getStatus());
         if (byStatus == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
-        if (UserInfoBeautyStatusEnum.USED.equals(byStatus)) {
+        if (BeautyAccountStatusEnum.USED.equals(byStatus)) {
             throw new BusinessException("该靓号已被使用");
         }
         this.userInfoBeautyMapper.deleteById(id);
