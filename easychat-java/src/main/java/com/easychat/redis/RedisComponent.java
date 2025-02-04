@@ -18,6 +18,10 @@ public class RedisComponent {
         return (Long) redisUtils.get(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId);
     }
 
+    public void saveUserHeartBeat(String userId) {
+        redisUtils.setex(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId, System.currentTimeMillis(), Constants.REDIS_KEY_EXPIRES_HEART_BEAR);
+    }
+
     public void saveTokenUserInfoDto(TokenUserInfoDto tokenUserInfoDto) {
         redisUtils.setex(Constants.REDIS_KEY_WS_TOKEN + tokenUserInfoDto.getToken(), tokenUserInfoDto, Constants.REDIS_TIME_1DAY * 7);
         redisUtils.setex(Constants.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfoDto.getUserId(), tokenUserInfoDto.getToken(), Constants.REDIS_TIME_1DAY * 7);
@@ -44,4 +48,6 @@ public class RedisComponent {
     public void setSysSetting(SysSettingDto sysSettingDto) {
         redisUtils.set(Constants.REDIS_KEY_SYSSETTING, sysSettingDto);
     }
+
+
 }

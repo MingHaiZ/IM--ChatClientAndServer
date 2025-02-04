@@ -1,7 +1,9 @@
 package com.easychat.entity.po;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
+
 import com.easychat.entity.enums.DateTimePatternEnum;
 import com.easychat.utils.DateUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,115 +18,124 @@ import java.io.Serializable;
 public class AppUpdate implements Serializable {
 
 
-	/**
-	 * 自增ID
-	 */
-	private Integer id;
+    /**
+     * 自增ID
+     */
+    private Integer id;
 
-	/**
-	 * 版本号
-	 */
-	private String version;
+    /**
+     * 版本号
+     */
+    private String version;
 
-	/**
-	 * 更新描述
-	 */
-	private String updateDesc;
+    /**
+     * 更新描述
+     */
+    private String updateDesc;
 
-	/**
-	 * 创建时间
-	 */
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private Date createTime;
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
-	/**
-	 * 0: 未发布 1: 灰度发布 2: 全网发布
-	 */
-	private Integer status;
+    /**
+     * 0: 未发布 1: 灰度发布 2: 全网发布
+     */
+    private Integer status;
 
-	/**
-	 * 灰度uid
-	 */
-	private String grayscaleUid;
+    /**
+     * 灰度uid
+     */
+    private String grayscaleUid;
 
-	/**
-	 * 文件类型 0:本地文件 1:外链文件
-	 */
-	private Integer fileType;
+    /**
+     * 文件类型 0:本地文件 1:外链文件
+     */
+    private Integer fileType;
 
-	/**
-	 * 外链地址
-	 */
-	private String outerLink;
+    /**
+     * 外链地址
+     */
+    private String outerLink;
 
+    private String[] updateDescArray;
 
-	public void setId(Integer id){
-		this.id = id;
-	}
+    public String[] getUpdateDescArray() {
+        if (!this.updateDesc.isEmpty()) {
+            this.updateDescArray = this.updateDesc.split("\\|");
+        }
 
-	public Integer getId(){
-		return this.id;
-	}
+        return updateDescArray;
+    }
 
-	public void setVersion(String version){
-		this.version = version;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public String getVersion(){
-		return this.version;
-	}
+    public Integer getId() {
+        return this.id;
+    }
 
-	public void setUpdateDesc(String updateDesc){
-		this.updateDesc = updateDesc;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	public String getUpdateDesc(){
-		return this.updateDesc;
-	}
+    public String getVersion() {
+        return this.version;
+    }
 
-	public void setCreateTime(Date createTime){
-		this.createTime = createTime;
-	}
+    public void setUpdateDesc(String updateDesc) {
+        this.updateDesc = updateDesc;
+    }
 
-	public Date getCreateTime(){
-		return this.createTime;
-	}
+    public String getUpdateDesc() {
+        return this.updateDesc;
+    }
 
-	public void setStatus(Integer status){
-		this.status = status;
-	}
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
-	public Integer getStatus(){
-		return this.status;
-	}
+    public Date getCreateTime() {
+        return this.createTime;
+    }
 
-	public void setGrayscaleUid(String grayscaleUid){
-		this.grayscaleUid = grayscaleUid;
-	}
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 
-	public String getGrayscaleUid(){
-		return this.grayscaleUid;
-	}
+    public Integer getStatus() {
+        return this.status;
+    }
 
-	public void setFileType(Integer fileType){
-		this.fileType = fileType;
-	}
+    public void setGrayscaleUid(String grayscaleUid) {
+        this.grayscaleUid = grayscaleUid;
+    }
 
-	public Integer getFileType(){
-		return this.fileType;
-	}
+    public String getGrayscaleUid() {
+        return this.grayscaleUid;
+    }
 
-	public void setOuterLink(String outerLink){
-		this.outerLink = outerLink;
-	}
+    public void setFileType(Integer fileType) {
+        this.fileType = fileType;
+    }
 
-	public String getOuterLink(){
-		return this.outerLink;
-	}
+    public Integer getFileType() {
+        return this.fileType;
+    }
 
-	@Override
-	public String toString (){
-		return "自增ID:"+(id == null ? "空" : id)+"，版本号:"+(version == null ? "空" : version)+"，更新描述:"+(updateDesc == null ? "空" : updateDesc)+"，创建时间:"+(createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern()))+"，0: 未发布 1: 灰度发布 2: 全网发布:"+(status == null ? "空" : status)+"，灰度uid:"+(grayscaleUid == null ? "空" : grayscaleUid)+"，文件类型 0:本地文件 1:外链文件:"+(fileType == null ? "空" : fileType)+"，外链地址:"+(outerLink == null ? "空" : outerLink);
-	}
+    public void setOuterLink(String outerLink) {
+        this.outerLink = outerLink;
+    }
+
+    public String getOuterLink() {
+        return this.outerLink;
+    }
+
+    @Override
+    public String toString() {
+        return "自增ID:" + (id == null ? "空" : id) + "，版本号:" + (version == null ? "空" : version) + "，更新描述:" + (updateDesc == null ? "空" : updateDesc) + "，创建时间:" + (createTime == null ? "空" : DateUtil.format(createTime, DateTimePatternEnum.YYYY_MM_DD_HH_MM_SS.getPattern())) + "，0: 未发布 1: 灰度发布 2: 全网发布:" + (status == null ? "空" : status) + "，灰度uid:" + (grayscaleUid == null ? "空" : grayscaleUid) + "，文件类型 0:本地文件 1:外链文件:" + (fileType == null ? "空" : fileType) + "，外链地址:" + (outerLink == null ? "空" : outerLink);
+    }
 }

@@ -1,10 +1,15 @@
 package com.easychat.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.easychat.entity.query.AppUpdateQuery;
 import com.easychat.entity.po.AppUpdate;
 import com.easychat.entity.vo.PaginationResultVO;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -69,4 +74,9 @@ public interface AppUpdateService {
 	 */
 	Integer deleteAppUpdateById(Integer id);
 
+    void saveUpdate(AppUpdate appUpdate, MultipartFile file, @NotEmpty String fileName) throws IOException;
+
+    void postUpdate(@NotNull Integer id, @NotNull Integer status, String grayscaleUid);
+
+	AppUpdate getLatestedUpdate(@NotEmpty String appVersion, String uid);
 }

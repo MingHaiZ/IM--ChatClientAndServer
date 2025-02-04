@@ -1,4 +1,5 @@
-ws.port: 5051
+ws:
+  port: 5051
 server:
   port: 5050
   servlet:

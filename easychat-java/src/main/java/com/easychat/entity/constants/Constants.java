@@ -22,4 +22,9 @@ public class Constants {
     public static final String COVER_IMAGE_SUFFIX = "_cover.png";
     public static final String APPLY_INFO_TEMPLATE = "我是";
     public static final String REGEX_PASSWORD = "^(?=.*\\d)(?=.*[a-zA-z])[\\da-zA-z~!@#$%^&*_]{8,18}$";
+    public static final String APP_UPDATE_FOLDER = "/app/";
+    public static final String APP_EXE_SUFFIX = ".exe";
+    public static final String APP_NAME = "EastChatSetup.";
+    public static final String WS_PROTOCOL = "/ws";
+    public static final long REDIS_KEY_EXPIRES_HEART_BEAR = 6;
 }

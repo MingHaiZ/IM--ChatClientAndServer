@@ -25,4 +25,5 @@ public interface AppUpdateMapper<T,P> extends BaseMapper<T,P> {
 	 T selectById(@Param("id") Integer id);
 
 
+    T selectLatestUpdate(@Param("appVersion") String appVersion, @Param("uid") String uid);
 }
