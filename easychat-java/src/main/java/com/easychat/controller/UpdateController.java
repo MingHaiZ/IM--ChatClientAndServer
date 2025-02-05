@@ -36,6 +36,9 @@ public class UpdateController extends ABaseController {
         }
 
         AppUpdate latestUpdate = this.appUpdateService.getLatestedUpdate(appVersion, uid);
+        if (latestUpdate == null) {
+            return getSuccessResponseVO(null);
+        }
         AppUpdateVo updateVo = CopyTools.copy(latestUpdate, AppUpdateVo.class);
         if (AppUpdateFileTypeEnum.LOCAL.getFileType().equals(latestUpdate.getFileType())) {
             File file = new File(appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE + Constants.APP_UPDATE_FOLDER + updateVo.getId() + Constants.APP_EXE_SUFFIX);

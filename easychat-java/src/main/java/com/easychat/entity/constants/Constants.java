@@ -27,4 +27,6 @@ public class Constants {
     public static final String APP_NAME = "EastChatSetup.";
     public static final String WS_PROTOCOL = "/ws";
     public static final long REDIS_KEY_EXPIRES_HEART_BEAR = 6;
+    public static final String REDIS_KEY_USER_CONTACT = REDIS_KEY_WS_PREFIX + "user:contact:";
+    public static final long MILLISSECONDS_3DAYS_BEFORE = 3 * 24 * 60 * 60 * 1000;
 }

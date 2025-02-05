@@ -32,13 +32,12 @@ public class HandlerWebSocket extends SimpleChannelInboundHandler<TextWebSocketF
 
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         Channel channel = ctx.channel();
-        logger.info("收到消息{}", msg.text());
-        channel.writeAndFlush(new TextWebSocketFrame("客户端返回消息" + msg.text()));
+//        logger.info("收到消息{}", msg.text());
+//        channel.writeAndFlush(new TextWebSocketFrame("客户端返回消息" + msg.text()));
         Attribute<String> attr = channel.attr(AttributeKey.valueOf(channel.id().toString()));
         String userId = attr.get();
-        logger.info("收到用户[{}]的信息: {}", userId, msg.text());
+//        logger.info("收到用户[{}]的信息: {}", userId, msg.text());
         redisComponent.saveUserHeartBeat(userId);
-        channelContextUtils.send2Group(msg.text());
     }
 
     @Override
@@ -61,7 +60,7 @@ public class HandlerWebSocket extends SimpleChannelInboundHandler<TextWebSocketF
             logger.info("redisToken: {}", tokenUserInfo.getToken());
             logger.info("token:{}", token);
             channelContextUtils.addContext(tokenUserInfo.getUserId(), ctx.channel());
-            ctx.writeAndFlush(new TextWebSocketFrame("成功链接到服务器"));
+//            ctx.writeAndFlush(new TextWebSocketFrame("成功链接到服务器"));
         }
     }
 
@@ -93,6 +92,8 @@ public class HandlerWebSocket extends SimpleChannelInboundHandler<TextWebSocketF
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+
         logger.info("有链接断开");
+        channelContextUtils.removeContext(ctx.channel());
     }
 }

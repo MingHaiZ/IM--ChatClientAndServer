@@ -65,22 +65,25 @@
 
 	<!-- 通用查询条件列-->
 	<sql id="query_condition">
-	 <where>
-			<include refid="base_condition_filed" />
-			<if test="query.applyUserIdFuzzy!= null  and query.applyUserIdFuzzy!=''">
-				 and  u.apply_user_id like concat('%', #{query.applyUserIdFuzzy}, '%')
-			</if>
-			<if test="query.receivceUserIdFuzzy!= null  and query.receivceUserIdFuzzy!=''">
-				 and  u.receivce_user_id like concat('%', #{query.receivceUserIdFuzzy}, '%')
-			</if>
-			<if test="query.contactIdFuzzy!= null  and query.contactIdFuzzy!=''">
-				 and  u.contact_id like concat('%', #{query.contactIdFuzzy}, '%')
-			</if>
-			<if test="query.applyInfoFuzzy!= null  and query.applyInfoFuzzy!=''">
-				 and  u.apply_info like concat('%', #{query.applyInfoFuzzy}, '%')
-			</if>
-	 </where>
-	</sql>
+        <where>
+            <include refid="base_condition_filed"/>
+            <if test="query.applyUserIdFuzzy!= null  and query.applyUserIdFuzzy!=''">
+                and u.apply_user_id like concat('%', #{query.applyUserIdFuzzy}, '%')
+            </if>
+            <if test="query.receivceUserIdFuzzy!= null  and query.receivceUserIdFuzzy!=''">
+                and u.receivce_user_id like concat('%', #{query.receivceUserIdFuzzy}, '%')
+            </if>
+            <if test="query.contactIdFuzzy!= null  and query.contactIdFuzzy!=''">
+                and u.contact_id like concat('%', #{query.contactIdFuzzy}, '%')
+            </if>
+            <if test="query.applyInfoFuzzy!= null  and query.applyInfoFuzzy!=''">
+                and u.apply_info like concat('%', #{query.applyInfoFuzzy}, '%')
+            </if>
+            <if test="query.lastApplyTimestamp!=null">
+                and last_apply_time >= #{query.lastApplyTimestamp}
+            </if>
+        </where>
+    </sql>
 
 	<!-- 查询集合-->
 	<select id="selectList" resultMap="base_result_map" >

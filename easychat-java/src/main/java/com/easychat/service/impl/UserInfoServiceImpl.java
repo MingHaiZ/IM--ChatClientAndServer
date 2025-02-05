@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -12,11 +13,15 @@ import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
+import com.easychat.entity.po.UserContact;
 import com.easychat.entity.po.UserInfoBeauty;
+import com.easychat.entity.query.UserContactQuery;
 import com.easychat.entity.vo.UserInfoVo;
 import com.easychat.exception.BusinessException;
+import com.easychat.mappers.UserContactMapper;
 import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.UserContactService;
 import com.easychat.utils.CopyTools;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +52,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     private AppConfig appConfig;
     @Autowired
     private RedisComponent redisComponent;
+    @Autowired
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
+    @Autowired
+    private UserContactService userContactService;
 
     /**
      * 根据条件查询列表
@@ -216,7 +225,8 @@ public class UserInfoServiceImpl implements UserInfoService {
             updateBeauty.setStatus(BeautyAccountStatusEnum.USED.getStatus());
             this.userInfoBeautyMapper.updateById(updateBeauty, userInfoBeauty.getId());
         }
-//        TODO 创建机器人好友
+
+        userContactService.addContact4Robot(userInfo.getUserId());
 
 
     }
@@ -231,7 +241,19 @@ public class UserInfoServiceImpl implements UserInfoService {
             throw new BusinessException(ResponseCodeEnum.CODE_603);
         }
 //        TODO 查询我的群组
-//        TODO 查询我的联系人
+//        查询联系人
+
+        UserContactQuery userContactQuery = new UserContactQuery();
+        userContactQuery.setUserId(userInfo.getUserId());
+        userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+        List<UserContact> userContactList = this.userContactMapper.selectList(userContactQuery);
+        List<String> idList = userContactList.stream()
+                .map(UserContact::getContactId)
+                .collect(Collectors.toList());
+        redisComponent.cleanUserContact(userInfo.getUserId());
+        if (!idList.isEmpty()) {
+            redisComponent.addUserContactBatch(userInfo.getUserId(), idList);
+        }
 
         TokenUserInfoDto tokenUserInfoDto = getTokenUserInfoDto(userInfo);
 

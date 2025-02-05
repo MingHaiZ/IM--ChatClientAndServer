@@ -79,4 +79,6 @@ public interface UserContactService {
     Integer applyAdd(TokenUserInfoDto tokenUserInfo, @NotEmpty String contactId, String applyInfo);
 
     void removeUserContact(String userId, @NotEmpty String contactId, UserContactStatusEnum userContactStatusEnum);
+
+    void addContact4Robot(String userId);
 }

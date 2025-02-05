@@ -5,9 +5,11 @@ import com.easychat.entity.enums.UserContactTypeEnum;
 import com.easychat.exception.BusinessException;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 
 public class StringTools {
@@ -66,6 +68,7 @@ public class StringTools {
     public static String getUserId() {
         return UserContactTypeEnum.USER.getPrefix() + getRandomNumber(Constants.LENGTH_11);
     }
+
     public static String getGroupId() {
         return UserContactTypeEnum.GROUP.getPrefix() + getRandomNumber(Constants.LENGTH_11);
     }
@@ -82,5 +85,19 @@ public class StringTools {
         return StringTools.isEmpty(password) ? null : DigestUtils.md5Hex(password);
     }
 
+    public static String cleanHtmlTag(String content) {
+        if (isEmpty(content)) {
+            return content;
+        }
+        content = content.replace("<", "&lt;");
+        content = content.replace("\r\n", "<br>");
+        content = content.replace("\n", "<br>");
+        return content;
+    }
+
+    public static String getChatSessionId4User(String[] userIds) {
+        Arrays.sort(userIds);
+        return encodeMd5(StringUtils.join(userIds, ""));
+    }
 
 }

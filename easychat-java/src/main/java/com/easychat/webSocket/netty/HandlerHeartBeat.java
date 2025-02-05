@@ -33,9 +33,10 @@ public class HandlerHeartBeat extends ChannelDuplexHandler {
                 logger.info("用户 {} 心跳超时", userId);
                 ctx.writeAndFlush(new TextWebSocketFrame("闲置时间过长,请重新连接"));
                 ctx.close();
-            } else if (IdleState.WRITER_IDLE.equals(event.state())) {
-                ctx.writeAndFlush("heart");
             }
+//            else if (IdleState.WRITER_IDLE.equals(event.state())) {
+//                ctx.writeAndFlush("heart");
+//            }
         }
     }
 

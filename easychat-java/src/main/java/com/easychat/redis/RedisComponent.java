@@ -6,6 +6,7 @@ import com.easychat.entity.dto.TokenUserInfoDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -20,6 +21,10 @@ public class RedisComponent {
 
     public void saveUserHeartBeat(String userId) {
         redisUtils.setex(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId, System.currentTimeMillis(), Constants.REDIS_KEY_EXPIRES_HEART_BEAR);
+    }
+
+    public void removeUserHeartBeat(String userId) {
+        redisUtils.delete(Constants.REDIS_KEY_WS_USER_HEART_BEAT + userId);
     }
 
     public void saveTokenUserInfoDto(TokenUserInfoDto tokenUserInfoDto) {
@@ -47,6 +52,20 @@ public class RedisComponent {
 
     public void setSysSetting(SysSettingDto sysSettingDto) {
         redisUtils.set(Constants.REDIS_KEY_SYSSETTING, sysSettingDto);
+    }
+
+    //    清空联系人
+    public void cleanUserContact(String userId) {
+        redisUtils.delete(Constants.REDIS_KEY_USER_CONTACT + userId);
+    }
+
+    //    批量添加联系人
+    public void addUserContactBatch(String userId, List<String> contactIdList) {
+        redisUtils.lpushAll(Constants.REDIS_KEY_USER_CONTACT + userId, contactIdList, Constants.REDIS_TIME_1DAY * 2);
+    }
+
+    public List<String> getUserContact(String userId) {
+        return (List<String>) redisUtils.getQueueList(Constants.REDIS_KEY_USER_CONTACT + userId);
     }
 
 

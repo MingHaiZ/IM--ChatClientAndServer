@@ -94,10 +94,10 @@
         </if>
         FROM user_contact u
         <if test="query.queryUserInfo">
-            inner join user_info u1 on u.user_id = u1.user_id
+            left join user_info u1 on u.user_id = u1.user_id
         </if>
         <if test="query.queryContactUserInfo">
-            inner join user_info u1 on u.contact_id = u1.user_id
+            left join user_info u1 on u.contact_id = u1.user_id
         </if>
         <if test="query.queryGroupInfo">
             inner join group_info gi on u.contact_id = gi.group_id

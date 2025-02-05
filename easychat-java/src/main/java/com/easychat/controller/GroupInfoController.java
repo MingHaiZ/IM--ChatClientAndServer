@@ -2,6 +2,7 @@ package com.easychat.controller;
 
 import com.easychat.annotation.GlobalInterceptor;
 import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.entity.enums.GroupStatusEnum;
 import com.easychat.entity.enums.UserContactStatusEnum;
 import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.po.UserContact;
@@ -82,6 +83,7 @@ public class GroupInfoController extends ABaseController {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
         GroupInfoQuery groupInfoQuery = new GroupInfoQuery();
         groupInfoQuery.setGroupOwnerId(tokenUserInfo.getUserId());
+        groupInfoQuery.setStatus(GroupStatusEnum.NORMAL.getStatus());
 
         List<GroupInfo> listByParam = this.groupInfoService.findListByParam(groupInfoQuery);
 

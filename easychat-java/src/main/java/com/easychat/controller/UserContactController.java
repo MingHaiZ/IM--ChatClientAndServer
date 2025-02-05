@@ -1,6 +1,7 @@
 package com.easychat.controller;
 
 import com.easychat.annotation.GlobalInterceptor;
+import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.dto.UserContactSearchResultDto;
 import com.easychat.entity.enums.*;
@@ -13,11 +14,13 @@ import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.entity.vo.ResponseVO;
 import com.easychat.entity.vo.UserInfoVo;
 import com.easychat.exception.BusinessException;
+import com.easychat.redis.RedisComponent;
 import com.easychat.service.UserContactApplyService;
 import com.easychat.service.UserContactService;
 import com.easychat.service.UserInfoService;
 import com.easychat.utils.CopyTools;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +43,8 @@ public class UserContactController extends ABaseController {
 
     @Resource
     private UserContactApplyService userContactApplyService;
+    @Autowired
+    private RedisComponent redisComponent;
 
     @RequestMapping("search")
     @GlobalInterceptor
@@ -139,6 +144,16 @@ public class UserContactController extends ABaseController {
     @RequestMapping("getContactUserInfo")
     @GlobalInterceptor
     public ResponseVO getContactUserInfo(HttpServletRequest request, @NotEmpty String contactId) {
+        SysSettingDto sysSetting = redisComponent.getSysSetting();
+        if (sysSetting.getRobotUid().equals(contactId)) {
+            UserContact userContact = new UserContact();
+            userContact.setUserId(contactId);
+            userContact.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+            userContact.setContactName(sysSetting.getRobotNickName());
+            userContact.setContactType(UserContactTypeEnum.USER.getType());
+            userContact.setContactId(getTokenUserInfo(request).getUserId());
+            return getSuccessResponseVO(userContact);
+        }
         UserContact userContactByUserIdAndContactId = this.userContactService.getUserContactByUserIdAndContactId(getTokenUserInfo(request).getUserId(), contactId);
         if (userContactByUserIdAndContactId == null || !ArrayUtils.contains(new Integer[]{
                 UserContactStatusEnum.FRIEND.getStatus(),
