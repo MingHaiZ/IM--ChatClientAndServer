@@ -1,12 +1,14 @@
 package com.easychat.controller;
 
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.vo.ResponseVO;
 import com.easychat.entity.vo.UserInfoVo;
 import com.easychat.exception.BusinessException;
 import com.easychat.redis.RedisComponent;
 import com.easychat.redis.RedisUtils;
 import com.easychat.service.UserInfoService;
+import com.easychat.webSocket.MessageHandler;
 import com.wf.captcha.ArithmeticCaptcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,8 @@ public class AccountController extends ABaseController {
     UserInfoService userInfoService;
     @Autowired
     private RedisComponent redisComponent;
+    @Resource
+    private MessageHandler messageHandler;
 
     @RequestMapping("/checkCode")
     public ResponseVO checkCode(Principal principal) {
@@ -102,6 +106,14 @@ public class AccountController extends ABaseController {
     @RequestMapping("/getSysSetting")
     public ResponseVO getSysSetting() {
         return getSuccessResponseVO(redisComponent.getSysSetting());
+    }
+
+    @RequestMapping("test")
+    public ResponseVO test() {
+        MessageSendDto objectMessageSendDto = new MessageSendDto<>();
+        objectMessageSendDto.setMessageContent("2333333");
+        messageHandler.sendMessage(objectMessageSendDto);
+        return getSuccessResponseVO(null);
     }
 
 }

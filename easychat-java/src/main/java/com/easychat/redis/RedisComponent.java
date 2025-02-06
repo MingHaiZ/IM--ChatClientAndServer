@@ -6,6 +6,7 @@ import com.easychat.entity.dto.TokenUserInfoDto;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,9 +46,10 @@ public class RedisComponent {
         return (TokenUserInfoDto) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN + token);
     }
 
-    public void logout(TokenUserInfoDto tokenUserInfoDto) {
-        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN + tokenUserInfoDto.getToken());
-        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN_USERID + tokenUserInfoDto.getUserId());
+    public void cleanTokenUserInfoDtoById(String userId) {
+        String userToken = (String) redisUtils.get(Constants.REDIS_KEY_WS_TOKEN_USERID + userId);
+        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN + userToken);
+        redisUtils.delete(Constants.REDIS_KEY_WS_TOKEN_USERID + userId);
     }
 
     public void setSysSetting(SysSettingDto sysSettingDto) {
@@ -57,6 +59,17 @@ public class RedisComponent {
     //    清空联系人
     public void cleanUserContact(String userId) {
         redisUtils.delete(Constants.REDIS_KEY_USER_CONTACT + userId);
+    }
+
+
+    //    添加联系人
+    public void addUserContact(String userId, String contactId) {
+        List queueList = redisUtils.getQueueList(Constants.REDIS_KEY_USER_CONTACT + userId);
+        if (queueList.contains(contactId)) {
+            return;
+        }
+        redisUtils.lpush(Constants.REDIS_KEY_USER_CONTACT + userId, contactId, Constants.REDIS_TIME_1DAY * 2);
+
     }
 
     //    批量添加联系人

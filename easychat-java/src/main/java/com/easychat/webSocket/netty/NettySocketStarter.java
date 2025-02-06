@@ -2,6 +2,7 @@ package com.easychat.webSocket.netty;
 
 import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
+import com.easychat.utils.StringTools;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -42,6 +43,11 @@ public class NettySocketStarter {
     public void startNettyServer() {
 
         try {
+            Integer wsPort = appConfig.getWsPort();
+            String property = System.getProperty("ws.port");
+            if (!StringTools.isEmpty(property)) {
+                wsPort = Integer.parseInt(property);
+            }
             ChannelFuture sync = new ServerBootstrap()
                     .group(BOSS_GROUP, WORKER_GROUP)
                     .channel(NioServerSocketChannel.class)
@@ -68,7 +74,7 @@ public class NettySocketStarter {
 
                         }
                     })
-                    .bind(appConfig.getWsPort())
+                    .bind(wsPort)
                     .sync();
             log.info("Netty客户端启动成功");
             sync.channel().closeFuture().sync();

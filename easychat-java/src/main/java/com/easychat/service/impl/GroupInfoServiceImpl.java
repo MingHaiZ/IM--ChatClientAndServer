@@ -11,25 +11,25 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
-import com.easychat.entity.po.UserContact;
-import com.easychat.entity.query.UserContactQuery;
+import com.easychat.entity.po.*;
+import com.easychat.entity.query.*;
 import com.easychat.exception.BusinessException;
-import com.easychat.mappers.UserContactMapper;
+import com.easychat.mappers.*;
 import com.easychat.redis.RedisComponent;
 import com.easychat.service.UserContactService;
+import com.easychat.utils.CopyTools;
+import com.easychat.webSocket.ChannelContextUtils;
+import com.easychat.webSocket.MessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.easychat.entity.query.GroupInfoQuery;
-import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.vo.PaginationResultVO;
-import com.easychat.entity.query.SimplePage;
-import com.easychat.mappers.GroupInfoMapper;
 import com.easychat.service.GroupInfoService;
 import com.easychat.utils.StringTools;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,12 +47,22 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
     @Resource
     private RedisComponent redisComponent;
-    @Autowired
+    @Resource
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
-    @Autowired
+    @Resource
     private AppConfig appConfig;
     @Resource
     private UserContactService userContactService;
+    @Resource
+    private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
+    @Resource
+    private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
+    @Resource
+    private MessageHandler messageHandler;
+    @Resource
+    private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
+    @Autowired
+    private ChannelContextUtils channelContextUtils;
 
     /**
      * 根据条件查询列表
@@ -188,7 +198,50 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
             this.userContactMapper.insert(userContact);
 
-//            TODO 创建会话
+
+//            创建会话
+            String sessionId = StringTools.getchatSessionId4Group(groupInfo.getGroupId());
+            ChatSession chatSession = new ChatSession();
+            chatSession.setSessionId(sessionId);
+            chatSession.setLastMessage(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            chatSession.setLastReceiveTime(date.getTime());
+            this.chatSessionMapper.insertOrUpdate(chatSession);
+
+            ChatSessionUser chatSessionUser = new ChatSessionUser();
+            chatSessionUser.setSessionId(sessionId);
+            chatSessionUser.setUserId(groupInfo.getGroupOwnerId());
+            chatSessionUser.setContactName(groupInfo.getGroupName());
+            chatSessionUser.setContactId(groupInfo.getGroupId());
+            this.chatSessionUserMapper.insert(chatSessionUser);
+
+//            创建消息
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSessionId(sessionId);
+            chatMessage.setMessageType(MessageTypeEnum.GROUP_CREATE.getType());
+            chatMessage.setMessageContent(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            chatMessage.setSendUserNickName(groupInfo.getGroupName());
+            chatMessage.setSendUserId(groupInfo.getGroupOwnerId());
+            chatMessage.setSendTime(date.getTime());
+            chatMessage.setContactId(groupInfo.getGroupId());
+            chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+            chatMessage.setStatus(MessageStatusEnum.SENDED.getStatus());
+            this.chatMessageMapper.insert(chatMessage);
+
+//            将群组添加到联系人
+            redisComponent.addUserContact(groupInfo.getGroupOwnerId(), groupInfo.getGroupId());
+
+//            将联系人通道添加到群组通道
+            this.channelContextUtils.addUser2Group(groupInfo.getGroupOwnerId(), groupInfo.getGroupId());
+
+//            发送ws消息
+            chatSessionUser.setLastMessage(MessageTypeEnum.GROUP_CREATE.getInitMessage());
+            chatSessionUser.setLastReceiveTime(date.getTime());
+            chatSessionUser.setMemberCount(1);
+
+            MessageSendDto messageSendDto = CopyTools.copy(chatMessage, MessageSendDto.class);
+            messageSendDto.setExtendData(chatSessionUser);
+
+
 //            TODO 发送消息
         } else {
             GroupInfo dbInfo = this.groupInfoMapper.selectByGroupId(groupInfo.getGroupId());

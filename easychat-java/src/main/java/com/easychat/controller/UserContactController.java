@@ -98,6 +98,7 @@ public class UserContactController extends ABaseController {
     @GlobalInterceptor
     public ResponseVO loadContact(HttpServletRequest request, @NotEmpty String contactType) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        SysSettingDto sysSetting = redisComponent.getSysSetting();
         UserContactTypeEnum byName = UserContactTypeEnum.getByName(contactType);
         if (byName == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
@@ -119,6 +120,10 @@ public class UserContactController extends ABaseController {
         });
 
         List<UserContact> listByParam = this.userContactService.findListByParam(userContactQuery);
+        listByParam.stream()
+                .filter((item) -> sysSetting.getRobotUid()
+                        .equals(item.getContactId()))
+                .forEach((item) -> item.setContactName(sysSetting.getRobotNickName()));
 
         return getSuccessResponseVO(listByParam);
     }

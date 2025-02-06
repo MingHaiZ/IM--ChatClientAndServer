@@ -1,7 +1,6 @@
 package com.easychat.entity.po;
 
 import com.easychat.entity.enums.UserContactTypeEnum;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 
@@ -35,7 +34,7 @@ public class ChatSessionUser implements Serializable {
 
     private String lastMessage;
 
-    private String lastReceiveTime;
+    private Long lastReceiveTime;
 
     private Integer memberCount;
 
@@ -66,11 +65,11 @@ public class ChatSessionUser implements Serializable {
         this.lastMessage = lastMessage;
     }
 
-    public String getLastReceiveTime() {
+    public Long getLastReceiveTime() {
         return lastReceiveTime;
     }
 
-    public void setLastReceiveTime(String lastReceiveTime) {
+    public void setLastReceiveTime(Long lastReceiveTime) {
         this.lastReceiveTime = lastReceiveTime;
     }
 

@@ -8,6 +8,7 @@ import java.util.Objects;
 import javax.annotation.Resource;
 
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.dto.UserContactSearchResultDto;
@@ -18,6 +19,8 @@ import com.easychat.exception.BusinessException;
 import com.easychat.mappers.*;
 import com.easychat.redis.RedisComponent;
 import com.easychat.utils.CopyTools;
+import com.easychat.webSocket.ChannelContextUtils;
+import com.easychat.webSocket.MessageHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +52,12 @@ public class UserContactServiceImpl implements UserContactService {
     private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
     @Autowired
     private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
+    @Autowired
+    private ChannelContextUtils channelContextUtils;
+    @Autowired
+    private MessageHandler messageHandler;
+    @Autowired
+    private UserContactApplyServiceImpl userContactApplyService;
 
     /**
      * 根据条件查询列表
@@ -204,6 +213,7 @@ public class UserContactServiceImpl implements UserContactService {
 
         Long currentTime = System.currentTimeMillis();
         Integer joinType = null;
+//        默认为用户,判断是否为群组,是群组则为群主ID
         String reciveUserId = contactId;
 
 //        查询对方是否已经是好友,如果已经拉黑则无法添加
@@ -212,6 +222,7 @@ public class UserContactServiceImpl implements UserContactService {
             throw new BusinessException("对方已将你拉黑");
         }
 
+//        判断ID是否为群组以及群组状态
         if (UserContactTypeEnum.GROUP.equals(userContactTypeEnum)) {
             GroupInfo groupInfo = groupInfoMapper.selectByGroupId(contactId);
             if (Objects.isNull(groupInfo) || groupInfo.getStatus().equals(GroupStatusEnum.DISSOLUTION.getStatus())) {
@@ -230,7 +241,7 @@ public class UserContactServiceImpl implements UserContactService {
 //        直接加入不用申请进入
         if (JoinTypeEnum.JOIN.getType().equals(joinType)) {
 //            TODO 添加联系人
-
+            userContactApplyService.addContact(tokenUserInfo.getUserId(), reciveUserId, contactId, userContactTypeEnum.getType(), applyInfo);
             return joinType;
         }
 
@@ -256,7 +267,11 @@ public class UserContactServiceImpl implements UserContactService {
         }
 
         if (Objects.isNull(userContactApply) || !UserContactApplyStatusEnum.INIT.getStatus().equals(userContactApply.getStatus())) {
-//            TODO 发送ws消息
+            MessageSendDto messageSendDto = new MessageSendDto();
+            messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
+            messageSendDto.setMessageContent(applyInfo);
+            messageSendDto.setContactId(reciveUserId);
+            messageHandler.sendMessage(messageSendDto);
         }
 
         return joinType;
