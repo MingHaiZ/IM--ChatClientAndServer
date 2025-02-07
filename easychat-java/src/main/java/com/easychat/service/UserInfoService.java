@@ -97,7 +97,7 @@ public interface UserInfoService {
 
 	UserInfoVo login(@NotEmpty @Email String email, @NotEmpty String password);
 
-    void updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException;
+    UserInfo updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException;
 
 	void updatePassword(String userId, @NotEmpty String updatePassword);
 

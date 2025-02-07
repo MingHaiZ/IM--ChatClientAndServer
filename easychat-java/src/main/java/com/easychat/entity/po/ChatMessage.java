@@ -1,6 +1,5 @@
 package com.easychat.entity.po;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 
 
@@ -63,7 +62,7 @@ public class ChatMessage implements Serializable {
 	/**
 	 * 文件名
 	 */
-	private Integer fileName;
+	private String fileName;
 
 	/**
 	 * 文件类型
@@ -156,11 +155,11 @@ public class ChatMessage implements Serializable {
 		return this.fileSize;
 	}
 
-	public void setFileName(Integer fileName){
+	public void setFileName(String fileName){
 		this.fileName = fileName;
 	}
 
-	public Integer getFileName(){
+	public String getFileName(){
 		return this.fileName;
 	}
 

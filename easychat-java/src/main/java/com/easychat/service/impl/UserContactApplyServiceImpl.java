@@ -1,5 +1,6 @@
 package com.easychat.service.impl;
 
+import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.easychat.exception.BusinessException;
 import com.easychat.mappers.*;
 import com.easychat.redis.RedisComponent;
 import com.easychat.utils.CopyTools;
+import com.easychat.webSocket.ChannelContextUtils;
 import com.easychat.webSocket.MessageHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,20 +35,24 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 
     @Resource
     private UserContactApplyMapper<UserContactApply, UserContactApplyQuery> userContactApplyMapper;
-    @Autowired
+    @Resource
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
-    @Autowired
+    @Resource
     private RedisComponent redisComponent;
-    @Autowired
+    @Resource
     private UserInfoMapper<UserInfo, UserInfoQuery> userInfoMapper;
-    @Autowired
+    @Resource
     private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
-    @Autowired
+    @Resource
     private ChatMessageMapper<ChatMessage, ChatMessageQuery> chatMessageMapper;
-    @Autowired
+    @Resource
     private MessageHandler messageHandler;
-    @Autowired
+    @Resource
     private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
+    @Resource
+    private GroupInfoMapper<GroupInfo, GroupInfoQuery> groupInfoMapper;
+    @Resource
+    private ChannelContextUtils channelContextUtils;
 
     /**
      * 根据条件查询列表
@@ -315,6 +321,57 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 
             messageHandler.sendMessage(messageSendDto);
         } else {
+//            加入群组
+            ChatSessionUser chatSessionUser = new ChatSessionUser();
+            chatSessionUser.setUserId(applyUserId);
+            chatSessionUser.setContactId(contactId);
+            GroupInfo groupInfo = groupInfoMapper.selectByGroupId(contactId);
+            chatSessionUser.setSessionId(sessionId);
+            chatSessionUser.setContactName(groupInfo.getGroupName());
+            this.chatSessionUserMapper.insert(chatSessionUser);
+
+
+            UserInfo userInfo = this.userInfoMapper.selectByUserId(applyUserId);
+            String initMessage = String.format(MessageTypeEnum.ADD_GROUP.getInitMessage(), userInfo.getNickName());
+
+//            增加session信息
+            ChatSession chatSession = new ChatSession();
+            chatSession.setSessionId(sessionId);
+            chatSession.setLastMessage(initMessage);
+            chatSession.setLastReceiveTime(date.getTime());
+
+            chatSessionMapper.insertOrUpdate(chatSession);
+
+//            增加聊天消息
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSessionId(sessionId);
+            chatMessage.setMessageType(MessageTypeEnum.ADD_GROUP.getType());
+            chatMessage.setMessageContent(initMessage);
+            chatMessage.setSendTime(date.getTime());
+            chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
+            chatMessage.setContactId(contactId);
+            chatMessage.setStatus(MessageStatusEnum.SENDED.getStatus());
+            this.chatMessageMapper.insert(chatMessage);
+
+//            将群组添加到联系人
+            redisComponent.addUserContact(applyUserId, contactId);
+//            将联系人通道添加到群组通道
+            channelContextUtils.addUser2Group(applyUserId, groupInfo.getGroupId());
+
+//            发送群消息
+            MessageSendDto messageSendDto = CopyTools.copy(chatMessage, MessageSendDto.class);
+            messageSendDto.setContactId(contactId);
+
+            UserContactQuery userContactQuery = new UserContactQuery();
+            userContactQuery.setContactId(contactId);
+            userContactQuery.setContactType(UserContactTypeEnum.GROUP.getType());
+            userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+
+            messageSendDto.setMemberCount(userContactMapper.selectCount(userContactQuery));
+            messageSendDto.setContactName(groupInfo.getGroupName());
+
+            messageHandler.sendMessage(messageSendDto);
+
 
         }
 

@@ -20,6 +20,7 @@ import com.easychat.entity.query.*;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.*;
 import com.easychat.redis.RedisComponent;
+import com.easychat.service.ChatSessionUserService;
 import com.easychat.service.UserContactService;
 import com.easychat.utils.CopyTools;
 import com.easychat.webSocket.ChannelContextUtils;
@@ -61,8 +62,10 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     private MessageHandler messageHandler;
     @Resource
     private ChatSessionUserMapper<ChatSessionUser, ChatSessionUserQuery> chatSessionUserMapper;
-    @Autowired
+    @Resource
     private ChannelContextUtils channelContextUtils;
+    @Resource
+    private ChatSessionUserService chatSessionUserService;
 
     /**
      * 根据条件查询列表
@@ -219,8 +222,6 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             chatMessage.setSessionId(sessionId);
             chatMessage.setMessageType(MessageTypeEnum.GROUP_CREATE.getType());
             chatMessage.setMessageContent(MessageTypeEnum.GROUP_CREATE.getInitMessage());
-            chatMessage.setSendUserNickName(groupInfo.getGroupName());
-            chatMessage.setSendUserId(groupInfo.getGroupOwnerId());
             chatMessage.setSendTime(date.getTime());
             chatMessage.setContactId(groupInfo.getGroupId());
             chatMessage.setContactType(UserContactTypeEnum.GROUP.getType());
@@ -240,9 +241,10 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
             MessageSendDto messageSendDto = CopyTools.copy(chatMessage, MessageSendDto.class);
             messageSendDto.setExtendData(chatSessionUser);
+            messageSendDto.setLastMessage(chatSessionUser.getLastMessage());
 
+            messageHandler.sendMessage(messageSendDto);
 
-//            TODO 发送消息
         } else {
             GroupInfo dbInfo = this.groupInfoMapper.selectByGroupId(groupInfo.getGroupId());
             if (!dbInfo.getGroupOwnerId().equals(groupInfo.getGroupOwnerId())) {
@@ -250,9 +252,16 @@ public class GroupInfoServiceImpl implements GroupInfoService {
             }
             this.groupInfoMapper.updateByGroupId(groupInfo, groupInfo.getGroupId());
 
-//            TODO 更新相关表冗余信息
+//            更新相关表的冗余信息
+            String contactNameUpdate = null;
+            if (!dbInfo.getGroupName().equals(groupInfo.getGroupId())) {
+                contactNameUpdate = groupInfo.getGroupName();
+            }
+            if (contactNameUpdate == null) {
+                return;
+            }
 
-//            TODO 修改群昵称发送ws消息
+            chatSessionUserService.updateRedundancyInfo(contactNameUpdate,groupInfo.getGroupId());
 
             if (Objects.isNull(avatarFile)) {
                 return;

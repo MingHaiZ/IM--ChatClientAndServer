@@ -56,3 +56,5 @@ dev: false
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+deepseek:
+  apiKey: sk-vpwdftpfydcpfhmezykmzdkezpdtienbakqrhtoibckzmunj

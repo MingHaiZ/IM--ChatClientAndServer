@@ -266,7 +266,7 @@ public class UserContactServiceImpl implements UserContactService {
 
         }
 
-        if (Objects.isNull(userContactApply) || !UserContactApplyStatusEnum.INIT.getStatus().equals(userContactApply.getStatus())) {
+        if (Objects.isNull(userContactApply) || !UserContactApplyStatusEnum.BLACKLIST.getStatus().equals(userContactApply.getStatus())) {
             MessageSendDto messageSendDto = new MessageSendDto();
             messageSendDto.setMessageType(MessageTypeEnum.CONTACT_APPLY.getType());
             messageSendDto.setMessageContent(applyInfo);

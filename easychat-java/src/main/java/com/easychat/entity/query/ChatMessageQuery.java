@@ -72,7 +72,7 @@ public class ChatMessageQuery extends BaseParam {
     /**
      * 文件名
      */
-    private Integer fileName;
+    private String fileName;
 
     /**
      * 文件类型
@@ -224,11 +224,11 @@ public class ChatMessageQuery extends BaseParam {
         return this.fileSize;
     }
 
-    public void setFileName(Integer fileName) {
+    public void setFileName(String fileName) {
         this.fileName = fileName;
     }
 
-    public Integer getFileName() {
+    public String getFileName() {
         return this.fileName;
     }
 

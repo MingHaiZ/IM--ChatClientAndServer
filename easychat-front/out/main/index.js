@@ -860,7 +860,10 @@ const createWs = () => {
       case 0:
         await saveOrUpdateChatSessionBatch4Init(message.extendData.chatSessionList);
         await saveMessageBatch(message.extendData.chatMessageList);
-        await updateContactNoReadCount({ userId: store$1.getUserId(), noReadCount: message.extendData.applyCount });
+        await updateContactNoReadCount({
+          userId: store$1.getUserId(),
+          noReadCount: message.extendData.applyCount
+        });
         sender.send("reciveMessage", { messageType: message.messageType });
         break;
       case 4:

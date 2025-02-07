@@ -56,6 +56,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
     @Autowired
     private UserContactService userContactService;
+    @Autowired
+    private ChatSessionUserServiceImpl chatSessionUserService;
 
     /**
      * 根据条件查询列表
@@ -275,7 +277,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException {
+    public UserInfo updateUserInfo(UserInfo userInfo, MultipartFile avatarFile, MultipartFile avatarCover) throws IOException {
         if (avatarFile != null) {
             String baseFolder = appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE;
             File targetFileFolder = new File(baseFolder + Constants.FILE_FOLDER_AVATAR_NAME);
@@ -290,13 +292,15 @@ public class UserInfoServiceImpl implements UserInfoService {
 
         this.userInfoMapper.updateByUserId(userInfo, userInfo.getUserId());
 
-        String contactName = null;
+        String contactNameUpdate = null;
         if (!dbUserInfo.getNickName().equals(userInfo.getNickName())) {
-            contactName = userInfo.getNickName();
+            contactNameUpdate = userInfo.getNickName();
         }
-
-//        TODO 更新会话信息中的昵称信息
-
+        if (contactNameUpdate == null) {
+            return dbUserInfo;
+        }
+        chatSessionUserService.updateRedundancyInfo(contactNameUpdate, userInfo.getUserId());
+        return userInfo;
 
     }
 

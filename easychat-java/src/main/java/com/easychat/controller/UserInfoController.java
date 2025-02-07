@@ -58,7 +58,10 @@ public class UserInfoController extends ABaseController {
         userInfo.setPassword(null);
         userInfo.setLastLoginTime(null);
 
-        this.userInfoService.updateUserInfo(userInfo, avatarFile, avatarCover);
+        UserInfo userInfoupdate = this.userInfoService.updateUserInfo(userInfo, avatarFile, avatarCover);
+        tokenUserInfo.setNickName(userInfoupdate.getNickName());
+        redisComponent.saveTokenUserInfoDto(tokenUserInfo);
+
         return getSuccessResponseVO(null);
     }
 
