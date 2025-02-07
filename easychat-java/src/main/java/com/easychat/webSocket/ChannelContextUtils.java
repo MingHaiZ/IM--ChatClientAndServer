@@ -141,7 +141,7 @@ public class ChannelContextUtils {
         if (userChannel == null) {
             return;
         }
-//        相对于A客户端客户端而言,B的联系人就是在看A看来就是A像B发送消息的人
+//        相对于A客户端客户端而言,B的联系人就是在A看来就是A向B发送消息的人
         if (MessageTypeEnum.ADD_FRIEND_SELF.getType().equals(messageSendDto.getMessageType())) {
             UserInfo userInfo = (UserInfo) messageSendDto.getExtendData();
             messageSendDto.setMessageType(MessageTypeEnum.ADD_FRIEND.getType());

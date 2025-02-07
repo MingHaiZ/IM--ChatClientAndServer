@@ -6,10 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 public class InitRun implements ApplicationRunner {
@@ -22,11 +25,16 @@ public class InitRun implements ApplicationRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(InitRun.class);
 
+    private static final ExecutorService executorService = Executors.newFixedThreadPool(5);
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
         try {
-            nettySocketStarter.startNettyServer();
+            executorService.execute(() -> {
+                nettySocketStarter.startNettyServer();
+            });
+            logger.info("SpringBoot启动成功!");
         } catch (Exception e) {
 
         }
