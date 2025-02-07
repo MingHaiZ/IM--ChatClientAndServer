@@ -196,6 +196,7 @@ public class ChannelContextUtils {
         if (byPrefix == null) {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
+        logger.info("推送了消息{}", messageSendDto);
         switch (byPrefix) {
             case USER:
                 send2User(messageSendDto);

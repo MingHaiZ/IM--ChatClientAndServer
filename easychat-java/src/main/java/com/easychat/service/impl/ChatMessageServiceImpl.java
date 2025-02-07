@@ -49,6 +49,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private ChatSessionMapper<ChatSession, ChatSessionQuery> chatSessionMapper;
     @Autowired
     private MessageHandler messageHandler;
+    @Autowired
+    private DeepSeekApi deepSeekApi;
 
     /**
      * 根据条件查询列表
@@ -224,7 +226,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             ChatMessage robotChatMessage = new ChatMessage();
             robotChatMessage.setContactId(sendUserId);
 //            这里可以对接AI实现AI聊天
-            String s = DeepSeekApi.useApi(messageContent);
+            String s = deepSeekApi.useApi(messageContent);
             robotChatMessage.setMessageContent(s);
             robotChatMessage.setMessageType(MessageTypeEnum.CHAT.getType());
             saveMessage(robotChatMessage, robot);
