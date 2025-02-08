@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 
 import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
+import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
 import com.easychat.entity.po.UserContact;
@@ -23,6 +24,8 @@ import com.easychat.mappers.UserInfoBeautyMapper;
 import com.easychat.redis.RedisComponent;
 import com.easychat.service.UserContactService;
 import com.easychat.utils.CopyTools;
+import com.easychat.webSocket.ChannelContextUtils;
+import com.easychat.webSocket.MessageHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,10 @@ public class UserInfoServiceImpl implements UserInfoService {
     private UserContactService userContactService;
     @Autowired
     private ChatSessionUserServiceImpl chatSessionUserService;
+    @Autowired
+    private ChannelContextUtils channelContextUtils;
+    @Autowired
+    private MessageHandler messageHandler;
 
     /**
      * 根据条件查询列表
@@ -242,7 +249,6 @@ public class UserInfoServiceImpl implements UserInfoService {
         if (userInfo.getStatus().equals(UserStatusEnum.DISABLE.getStatus())) {
             throw new BusinessException(ResponseCodeEnum.CODE_603);
         }
-//        TODO 查询我的群组
 //        查询联系人
 
         UserContactQuery userContactQuery = new UserContactQuery();
@@ -316,12 +322,17 @@ public class UserInfoServiceImpl implements UserInfoService {
         userInfo.setPassword(pwdAfterEncode);
         this.userInfoMapper.updateByUserId(userInfo, userId);
 
-//        TODO 强制退出,重新登录
+        channelContextUtils.closeContext(userId);
     }
 
     @Override
     public void forceOffLine(String userId) {
-//        TODO 强制下线
+        MessageSendDto messageSendDto = new MessageSendDto<>();
+        messageSendDto.setContactType(UserContactTypeEnum.USER.getType());
+        messageSendDto.setMessageType(MessageTypeEnum.FORCE_OFF_LINE.getType());
+        messageSendDto.setContactId(userId);
+        messageHandler.sendMessage(messageSendDto);
+
     }
 
     private TokenUserInfoDto getTokenUserInfoDto(UserInfo userInfo) {

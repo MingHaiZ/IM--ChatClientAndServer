@@ -3,6 +3,8 @@ package com.easychat.service;
 import java.io.IOException;
 import java.util.List;
 
+import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.entity.enums.MessageTypeEnum;
 import com.easychat.entity.query.GroupInfoQuery;
 import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.vo.PaginationResultVO;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -79,4 +82,8 @@ public interface GroupInfoService {
 	GroupInfo getGroupDetailCommon(HttpServletRequest request, @NotEmpty String groupId);
 
     void dissolutionGroup(String groupOwnerId, @NotEmpty String groupId);
+
+	void addOrRemoveGroupUser(TokenUserInfoDto tokenUserInfo, @NotEmpty String groupId, @NotEmpty String selectContacts, @NotNull Integer opType);
+
+	void leaveGroup(String userId, String groupId, MessageTypeEnum messageTypeEnum);
 }

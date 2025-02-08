@@ -33,8 +33,8 @@ spring:
     throw-exception-if-no-handler-found: true
   servlet:
     multipart:
-      max-file-size: 15MB
-      max-request-size: 15MB
+      max-file-size: 500MB
+      max-request-size: 500MB
   web:
     resources:
       add-mappings: false
@@ -51,7 +51,7 @@ spring:
     timeout: 2000
 
 admin:
-  emails: test@qq.com
+  emails: 1163094232@163.com
 dev: false
 mybatis:
   configuration:

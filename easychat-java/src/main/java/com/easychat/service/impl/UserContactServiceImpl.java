@@ -240,7 +240,6 @@ public class UserContactServiceImpl implements UserContactService {
 
 //        直接加入不用申请进入
         if (JoinTypeEnum.JOIN.getType().equals(joinType)) {
-//            TODO 添加联系人
             userContactApplyService.addContact(tokenUserInfo.getUserId(), reciveUserId, contactId, userContactTypeEnum.getType(), applyInfo);
             return joinType;
         }
@@ -303,8 +302,12 @@ public class UserContactServiceImpl implements UserContactService {
         }
 
         this.userContactMapper.insertOrUpdateBatch(userContactList);
-//        TODO 从我的列表缓存中删除好友
-//        TODO 从好友列表缓存中删除我
+
+//         从我的列表缓存中删除好友
+        redisComponent.removeUserContact(userId, contactId);
+//         从好友列表缓存中删除我
+        redisComponent.removeUserContact(contactId, userId);
+
 
     }
 
@@ -356,5 +359,24 @@ public class UserContactServiceImpl implements UserContactService {
         this.chatMessageMapper.insert(chatMessage);
 
 
+    }
+
+    @Override
+    public void addContact2BlackList(TokenUserInfoDto tokenUserInfoDto, String contactId) {
+//        判断拉黑人是否为自己
+        String userId = tokenUserInfoDto.getUserId();
+        if (userId.equals(contactId)) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        UserContact userContact = userContactMapper.selectByUserIdAndContactId(userId, contactId);
+//        联系人之间拉黑
+        if (userContact == null || userContact.getContactType().equals(UserContactTypeEnum.GROUP.getType())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        UserContact updateContact = new UserContact();
+        updateContact.setStatus(UserContactStatusEnum.BLACKLIST.getStatus());
+        this.userContactMapper.updateByUserIdAndContactId(updateContact, userId, contactId);
+        updateContact.setStatus(UserContactStatusEnum.BLACKLIST_BE.getStatus());
+        this.userContactMapper.updateByUserIdAndContactId(updateContact, contactId, userId);
     }
 }

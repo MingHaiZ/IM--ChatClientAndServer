@@ -77,6 +77,11 @@ public class RedisComponent {
         redisUtils.lpushAll(Constants.REDIS_KEY_USER_CONTACT + userId, contactIdList, Constants.REDIS_TIME_1DAY * 2);
     }
 
+    //    删除联系人
+    public void removeUserContact(String userId, String contactId) {
+        redisUtils.remove(Constants.REDIS_KEY_USER_CONTACT + userId, contactId);
+    }
+
     public List<String> getUserContact(String userId) {
         return (List<String>) redisUtils.getQueueList(Constants.REDIS_KEY_USER_CONTACT + userId);
     }

@@ -2,7 +2,9 @@ package com.easychat.controller;
 
 import com.easychat.annotation.GlobalInterceptor;
 import com.easychat.entity.dto.TokenUserInfoDto;
+import com.easychat.entity.enums.GroupOperationTypeEnum;
 import com.easychat.entity.enums.GroupStatusEnum;
+import com.easychat.entity.enums.MessageTypeEnum;
 import com.easychat.entity.enums.UserContactStatusEnum;
 import com.easychat.entity.po.GroupInfo;
 import com.easychat.entity.po.UserContact;
@@ -141,8 +143,26 @@ public class GroupInfoController extends ABaseController {
 
     @RequestMapping("leaveGroup")
     public ResponseVO leaveGroup(HttpServletRequest request, @NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        this.groupInfoService.leaveGroup(tokenUserInfo.getUserId(), groupId, MessageTypeEnum.LEAVE_GROUP);
         return getSuccessResponseVO(null);
     }
 
+
+    @RequestMapping("dissolutionGroup")
+    @GlobalInterceptor
+    public ResponseVO dissolutionGroup(HttpServletRequest request, @NotEmpty String groupId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        groupInfoService.dissolutionGroup(tokenUserInfo.getUserId(), groupId);
+        return getSuccessResponseVO(null);
+    }
+
+    @RequestMapping("addOrRemoveGroupUser")
+    @GlobalInterceptor
+    public ResponseVO groupList(HttpServletRequest request, @NotEmpty String groupId, @NotEmpty String selectContacts, @NotNull Integer opType) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        groupInfoService.addOrRemoveGroupUser(tokenUserInfo, groupId, selectContacts, opType);
+        return getSuccessResponseVO(null);
+    }
 
 }

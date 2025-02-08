@@ -29,4 +29,7 @@ public class Constants {
     public static final long REDIS_KEY_EXPIRES_HEART_BEAR = 6;
     public static final String REDIS_KEY_USER_CONTACT = REDIS_KEY_WS_PREFIX + "user:contact:";
     public static final long MILLISSECONDS_3DAYS_BEFORE = 3 * 24 * 60 * 60 * 1000;
+    public static final String[] IMAGE_SUFFIX_LIST = new String[]{".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp"};
+    public static final String[] VIDEO_SUFFIX_LIST = new String[]{".mp4", ".avi", ".rmvb", ".mkv", ".mov"};
+    public static final Long FILE_SIZE_MB = 1024 * 1024L;
 }

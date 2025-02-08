@@ -1,23 +1,29 @@
 package com.easychat.service.impl;
 
+import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.easychat.config.AppConfig;
 import com.easychat.entity.constants.Constants;
 import com.easychat.entity.dto.MessageSendDto;
 import com.easychat.entity.dto.SysSettingDto;
 import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.enums.*;
 import com.easychat.entity.po.ChatSession;
+import com.easychat.entity.po.UserContact;
 import com.easychat.entity.query.ChatSessionQuery;
+import com.easychat.entity.query.UserContactQuery;
 import com.easychat.exception.BusinessException;
 import com.easychat.mappers.ChatSessionMapper;
+import com.easychat.mappers.UserContactMapper;
 import com.easychat.redis.RedisComponent;
 import com.easychat.utils.CopyTools;
+import com.easychat.utils.DateUtil;
 import com.easychat.utils.DeepSeekApi;
 import com.easychat.webSocket.MessageHandler;
-import okhttp3.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +38,7 @@ import com.easychat.mappers.ChatMessageMapper;
 import com.easychat.service.ChatMessageService;
 import com.easychat.utils.StringTools;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 
 /**
@@ -51,6 +58,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private MessageHandler messageHandler;
     @Autowired
     private DeepSeekApi deepSeekApi;
+    @Autowired
+    private AppConfig appConfig;
+    @Autowired
+    private UserContactMapper<UserContact, UserContactQuery> userContactMapper;
 
     /**
      * 根据条件查询列表
@@ -169,6 +180,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                     throw new BusinessException(ResponseCodeEnum.CODE_903);
                 }
             }
+
+            UserContact userContact = userContactMapper.selectByUserIdAndContactId(tokenUserInfoDto.getUserId(), chatMessage.getContactId());
+            Integer status = userContact.getStatus();
+            if (status.equals(UserContactStatusEnum.BLACKLIST_BE.getStatus()) || status.equals(UserContactStatusEnum.BLACKLIST.getStatus())) {
+                throw new BusinessException(ResponseCodeEnum.CODE_902);
+            }
         }
 
 
@@ -217,6 +234,9 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         this.chatMessageMapper.insert(chatMessage);
 
         MessageSendDto messageSendDto = CopyTools.copy(chatMessage, MessageSendDto.class);
+        if (messageSendDto.getContactType().equals(UserContactTypeEnum.GROUP.getType())) {
+            messageSendDto.setLastMessage(tokenUserInfoDto.getNickName() + ": " + messageContent);
+        }
 
         if (Constants.ROBOT_UUID.equals(contactId)) {
             SysSettingDto sysSetting = redisComponent.getSysSetting();
@@ -226,6 +246,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             ChatMessage robotChatMessage = new ChatMessage();
             robotChatMessage.setContactId(sendUserId);
 //            这里可以对接AI实现AI聊天
+//            调用deepseekAPI 硅基流动平台
             String s = deepSeekApi.useApi(messageContent);
             robotChatMessage.setMessageContent(s);
             robotChatMessage.setMessageType(MessageTypeEnum.CHAT.getType());
@@ -235,5 +256,116 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         }
 
         return messageSendDto;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void saveMessageFile(String userId, Long messageId, MultipartFile file, MultipartFile cover) {
+        ChatMessage chatMessage = chatMessageMapper.selectByMessageId(messageId);
+        if (chatMessage == null) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        if (!chatMessage.getSendUserId().equals(userId)) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        SysSettingDto sysSetting = redisComponent.getSysSetting();
+        String filename = file.getOriginalFilename();
+        String fileSuffix = StringTools.getFileSuffix(filename);
+
+//        图片大小判断
+        if (!StringTools.isEmpty(fileSuffix)
+                && ArrayUtils.contains(Constants.IMAGE_SUFFIX_LIST, fileSuffix.toLowerCase())
+                && file.getSize() > sysSetting.getMaxImageSize() * Constants.FILE_SIZE_MB) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+//        视频大小判断
+        else if (
+                !StringTools.isEmpty(file.getOriginalFilename())
+                        && ArrayUtils.contains(Constants.VIDEO_SUFFIX_LIST, fileSuffix.toLowerCase())
+                        && file.getSize() > sysSetting.getMaxVideoSize() * Constants.FILE_SIZE_MB) {
+
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+//        其他文件大小判断
+        else if (!StringTools.isEmpty(file.getOriginalFilename())
+                && !ArrayUtils.contains(Constants.IMAGE_SUFFIX_LIST, fileSuffix.toLowerCase())
+                && !ArrayUtils.contains(Constants.VIDEO_SUFFIX_LIST, fileSuffix.toLowerCase())
+                && file.getSize() > sysSetting.getMaxFileSize() * Constants.FILE_SIZE_MB) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+        String fileExName = StringTools.getFileSuffix(filename);
+        String fileRealName = messageId + fileExName;
+        String month = DateUtil.format(new Date(chatMessage.getSendTime()), DateTimePatternEnum.YYYY_MM.getPattern());
+        File folder = new File(appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE + month);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        File uploadFile = new File(folder.getPath() + "/" + fileRealName);
+        try {
+            file.transferTo(uploadFile);
+            cover.transferTo(new File(uploadFile.getPath() + Constants.COVER_IMAGE_SUFFIX));
+        } catch (Exception e) {
+            log.error("文件上传失败", e);
+            throw new BusinessException("文件上传失败");
+        }
+
+        ChatMessage uploadInfo = new ChatMessage();
+        uploadInfo.setStatus(MessageStatusEnum.SENDED.getStatus());
+        ChatMessageQuery messageQuery = new ChatMessageQuery();
+        messageQuery.setMessageId(messageId);
+        messageQuery.setStatus(MessageStatusEnum.SENDING.getStatus());
+        this.chatMessageMapper.updateByParam(uploadInfo, messageQuery);
+
+        MessageSendDto messageSendDto = new MessageSendDto<>();
+        messageSendDto.setStatus(MessageStatusEnum.SENDED.getStatus());
+        messageSendDto.setMessageId(messageId);
+        messageSendDto.setMessageType(MessageTypeEnum.FILE_UPLOAD.getType());
+        messageSendDto.setContactId(chatMessage.getContactId());
+        messageHandler.sendMessage(messageSendDto);
+
+    }
+
+    @Override
+    public File chatMessageDownloadFile(TokenUserInfoDto tokenUserInfo, Long messageId, Boolean showCover) {
+        ChatMessage chatMessage = chatMessageMapper.selectByMessageId(messageId);
+        String contactId = chatMessage.getContactId();
+        UserContactTypeEnum userContactTypeEnum = UserContactTypeEnum.getByPrefix(contactId);
+        if (UserContactTypeEnum.USER == userContactTypeEnum && !tokenUserInfo.getUserId().equals(chatMessage.getContactId())) {
+            throw new BusinessException(ResponseCodeEnum.CODE_600);
+        }
+//        判断userId是否为这个群的成员,不是群成员无法获取群的文件
+        if (UserContactTypeEnum.GROUP == userContactTypeEnum) {
+            UserContactQuery userContactQuery = new UserContactQuery();
+            userContactQuery.setUserId(tokenUserInfo.getUserId());
+            userContactQuery.setContactType(UserContactTypeEnum.GROUP.getType());
+            userContactQuery.setContactId(contactId);
+            userContactQuery.setStatus(UserContactStatusEnum.FRIEND.getStatus());
+            Integer contactCount = userContactMapper.selectCount(userContactQuery);
+            if (contactCount == 0) {
+                throw new BusinessException(ResponseCodeEnum.CODE_600);
+            }
+        }
+
+        String month = DateUtil.format(new Date(chatMessage.getSendTime()), DateTimePatternEnum.YYYY_MM.getPattern());
+        File folder = new File(appConfig.getProjectFolder() + Constants.FILE_FOLDER_FILE + month);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        String fileName = chatMessage.getFileName();
+        String fileExName = StringTools.getFileSuffix(fileName);
+        String fileRealName = chatMessage.getMessageId() + fileExName;
+        if (showCover != null && showCover) {
+            fileRealName += Constants.COVER_IMAGE_SUFFIX;
+        }
+
+        File file = new File(folder.getPath() + "/" + fileRealName);
+        if (!file.exists()) {
+            log.error("文件不存在: {}", messageId);
+            throw new BusinessException(ResponseCodeEnum.CODE_605);
+        }
+
+
+        return file;
     }
 }

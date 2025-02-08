@@ -127,4 +127,5 @@ public class ChatSessionServiceImpl implements ChatSessionService {
 	public Integer deleteChatSessionBySessionId(String sessionId) {
 		return this.chatSessionMapper.deleteBySessionId(sessionId);
 	}
+
 }

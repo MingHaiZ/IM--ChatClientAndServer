@@ -81,4 +81,6 @@ public interface UserContactService {
     void removeUserContact(String userId, @NotEmpty String contactId, UserContactStatusEnum userContactStatusEnum);
 
     void addContact4Robot(String userId);
+
+    void addContact2BlackList(TokenUserInfoDto tokenUserInfoDto, @NotEmpty String contactId);
 }

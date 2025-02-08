@@ -11,6 +11,7 @@ import com.easychat.exception.BusinessException;
 import com.easychat.redis.RedisComponent;
 import com.easychat.service.impl.UserInfoServiceImpl;
 import com.easychat.utils.CopyTools;
+import com.easychat.webSocket.ChannelContextUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +28,13 @@ public class UserInfoController extends ABaseController {
 
     private final UserInfoServiceImpl userInfoService;
     private final RedisComponent redisComponent;
+    private final ChannelContextUtils channelContextUtils;
 
-    public UserInfoController(UserInfoServiceImpl userInfoService, RedisComponent redisComponent) {
+    public UserInfoController(UserInfoServiceImpl userInfoService, RedisComponent redisComponent, ChannelContextUtils channelContextUtils) {
         super();
         this.userInfoService = userInfoService;
         this.redisComponent = redisComponent;
+        this.channelContextUtils = channelContextUtils;
     }
 
     @RequestMapping("getUserInfo")
@@ -80,7 +83,7 @@ public class UserInfoController extends ABaseController {
     @GlobalInterceptor
     public ResponseVO logOut(HttpServletRequest request) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
-//        TODO 退出登录    关闭WS连接
+        channelContextUtils.closeContext(tokenUserInfo.getUserId());
         redisComponent.cleanTokenUserInfoDtoById(tokenUserInfo.getUserId());
         return getSuccessResponseVO(null);
     }

@@ -201,7 +201,6 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
             throw new BusinessException(ResponseCodeEnum.CODE_600);
         }
         if (statusEnum.equals(UserContactApplyStatusEnum.PASS)) {
-//            TODO 添加联系人
             this.addContact(userContactApply.getApplyUserId(), userContactApply.getReceivceUserId(), userContactApply.getContactId(), userContactApply.getContactType(), userContactApply.getApplyInfo());
             return;
         }
@@ -219,6 +218,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addContact(String applyUserId, String receivceUserId, String contactId, Integer contactType, String applyInfo) {
 //        判断是否是群聊,如果是则判断群聊人数是否已经达到上线
         if (UserContactTypeEnum.GROUP.getType().equals(contactType)) {
@@ -265,7 +265,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 
         String sessionId = null;
         if (UserContactTypeEnum.USER.getType().equals(contactType)) {
-            sessionId = StringTools.encodeMd5(StringTools.getChatSessionId4User(new String[]{applyUserId, receivceUserId}));
+            sessionId = StringTools.getChatSessionId4User(new String[]{applyUserId, receivceUserId});
         } else {
             sessionId = StringTools.getchatSessionId4Group(contactId);
         }
@@ -297,7 +297,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
 
             chatSessionUserList.add(receiveSessionUser);
 
-            this.chatSessionUserMapper.insertBatch(chatSessionUserList);
+            this.chatSessionUserMapper.insertOrUpdateBatch(chatSessionUserList);
 
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setSessionId(sessionId);
@@ -328,7 +328,7 @@ public class UserContactApplyServiceImpl implements UserContactApplyService {
             GroupInfo groupInfo = groupInfoMapper.selectByGroupId(contactId);
             chatSessionUser.setSessionId(sessionId);
             chatSessionUser.setContactName(groupInfo.getGroupName());
-            this.chatSessionUserMapper.insert(chatSessionUser);
+            this.chatSessionUserMapper.insertOrUpdate(chatSessionUser);
 
 
             UserInfo userInfo = this.userInfoMapper.selectByUserId(applyUserId);

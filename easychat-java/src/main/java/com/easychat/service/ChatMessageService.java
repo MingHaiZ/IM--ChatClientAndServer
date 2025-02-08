@@ -1,5 +1,6 @@
 package com.easychat.service;
 
+import java.io.File;
 import java.util.List;
 
 import com.easychat.entity.dto.MessageSendDto;
@@ -7,6 +8,9 @@ import com.easychat.entity.dto.TokenUserInfoDto;
 import com.easychat.entity.query.ChatMessageQuery;
 import com.easychat.entity.po.ChatMessage;
 import com.easychat.entity.vo.PaginationResultVO;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotNull;
 
 
 /**
@@ -72,4 +76,8 @@ public interface ChatMessageService {
 	Integer deleteChatMessageByMessageId(Long messageId);
 
     MessageSendDto saveMessage(ChatMessage chatMessage, TokenUserInfoDto tokenUserInfoDto);
+
+    void saveMessageFile(String userId, @NotNull Long messageId, @NotNull MultipartFile file, @NotNull MultipartFile cover);
+
+	File chatMessageDownloadFile(TokenUserInfoDto tokenUserInfo, Long fileId, @NotNull Boolean showCover);
 }

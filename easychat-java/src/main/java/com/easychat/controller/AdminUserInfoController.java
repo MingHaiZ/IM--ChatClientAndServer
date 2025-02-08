@@ -8,6 +8,8 @@ import com.easychat.entity.query.UserInfoQuery;
 import com.easychat.entity.vo.PaginationResultVO;
 import com.easychat.entity.vo.ResponseVO;
 import com.easychat.exception.BusinessException;
+import com.easychat.redis.RedisComponent;
+import com.easychat.redis.RedisConfig;
 import com.easychat.service.impl.UserInfoServiceImpl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,16 +17,21 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminUserInfoController extends ABaseController {
 
     private final UserInfoServiceImpl userInfoService;
+    private final RedisComponent redisComponent;
+    private final RedisConfig redisConfig;
 
-    public AdminUserInfoController(UserInfoServiceImpl userInfoService) {
+    public AdminUserInfoController(UserInfoServiceImpl userInfoService, RedisComponent redisComponent, RedisConfig redisConfig) {
         super();
         this.userInfoService = userInfoService;
+        this.redisComponent = redisComponent;
+        this.redisConfig = redisConfig;
     }
 
     @RequestMapping("loadUser")
@@ -36,7 +43,13 @@ public class AdminUserInfoController extends ABaseController {
         userInfoQuery.setOrderBy("create_time desc ");
         userInfoQuery.setPageNo(pageNo);
         userInfoQuery.setPageSize(pageSize);
-        PaginationResultVO paginationResultVO = userInfoService.findListByPage(userInfoQuery);
+        PaginationResultVO<UserInfo> paginationResultVO = userInfoService.findListByPage(userInfoQuery);
+//        for (UserInfo userInfo : paginationResultVO.getList()) {
+//            if (redisComponent.getUserHeartBeat(userInfo.getUserId()) != null) {
+//                userInfo.setOnlineType(1);
+//            }
+//        }
+
         return getSuccessResponseVO(paginationResultVO);
     }
 

@@ -134,7 +134,7 @@ public class UserContactController extends ABaseController {
     public ResponseVO getContactInfo(HttpServletRequest request, @NotEmpty String contactId) {
         TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
 
-        UserInfo userInfo = userInfoService.getUserInfoByUserId(tokenUserInfo.getUserId());
+        UserInfo userInfo = userInfoService.getUserInfoByUserId(contactId);
         UserInfoVo userInfoVo = CopyTools.copy(userInfo, UserInfoVo.class);
         userInfoVo.setContactStatus(UserContactStatusEnum.NOT_FRIEND.getStatus());
         UserContact userContactByUserIdAndContactId = userContactService.getUserContactByUserIdAndContactId(tokenUserInfo.getUserId(), contactId);
@@ -182,6 +182,14 @@ public class UserContactController extends ABaseController {
 
         return getSuccessResponseVO(null);
 
+    }
+
+    @RequestMapping("addContact2BlackList")
+    @GlobalInterceptor
+    public ResponseVO addContact2BlackList(HttpServletRequest request, @NotEmpty String contactId) {
+        TokenUserInfoDto tokenUserInfo = getTokenUserInfo(request);
+        userContactService.addContact2BlackList(tokenUserInfo, contactId);
+        return getSuccessResponseVO(null);
     }
 
 }
