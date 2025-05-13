@@ -7,16 +7,16 @@ server:
     session:
       timeout: PT60M
 project:
-  folder: E:/webser/easychat/
+  folder: E:/webser/------/
 
 log:
   root:
     level: debug
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/easychat
-    password: Yy002916
-    username: root
+    url: jdbc:mysql://localhost:3306/******
+    password: ------
+    username: ------
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: HikariCPDatasource
@@ -51,10 +51,10 @@ spring:
     timeout: 2000
 
 admin:
-  emails: 1163094232@163.com
+  emails: ------@163.com
 dev: false
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
 deepseek:
-  apiKey: sk-vpwdftpfydcpfhmezykmzdkezpdtienbakqrhtoibckzmunj
+  apiKey: sk-------
